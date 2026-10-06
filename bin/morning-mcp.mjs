@@ -2,7 +2,8 @@
 import fs from 'node:fs/promises';
 import readline from 'node:readline/promises';
 import {serveStdio,StdioServerTransport} from '@modelcontextprotocol/server/stdio';
-import {defaultConfigPath,loadConfig} from '../lib/config.mjs';
+import {defaultConfigPath} from '../lib/config.mjs';
+import pkg from '../package.json' with {type:'json'};
 import {serverFactory} from '../lib/server.mjs';
 import {saveConfig,setupBrowser} from '../lib/setup.mjs';
 
@@ -38,12 +39,12 @@ try{
     if(flags.includes('--terminal'))await setupTerminal();else await setupBrowser({openBrowser:!flags.includes('--no-open')});
   }
   else if(command==='--help'||command==='help')process.stderr.write('morning-mcp setup             Open a local browser form for your Morning keys.\nmorning-mcp setup --no-open   Print the local setup link without opening a browser.\nmorning-mcp setup --terminal  Save keys in a private interactive terminal instead.\nmorning-mcp                   Run the personal MCP on stdio.\nEnvironment overrides: MORNING_CLIENT_ID, MORNING_CLIENT_SECRET, MORNING_ENV, MORNING_CONFIG_FILE, MORNING_DATA_DIR, MORNING_WRITES_ENABLED.\n');
-  else if(command==='--version')process.stderr.write('0.1.2\n');
+  else if(command==='--version')process.stderr.write(`${pkg.version}\n`);
   else if(command)throw new Error('Unknown argument. Run morning-mcp --help.');
   else{
     // A 20 MB receipt becomes about 27 MB in base64; keep a bounded allowance.
-    const config=await loadConfig(),transport=new StdioServerTransport(process.stdin,process.stdout,{maxBufferSize:30*1024*1024});
-    const handle=serveStdio(serverFactory(config),{transport,maxSubscriptions:0,onerror:()=>console.error('Morning MCP transport error. Reconnect your client.')});
+    const transport=new StdioServerTransport(process.stdin,process.stdout,{maxBufferSize:30*1024*1024});
+    const handle=serveStdio(serverFactory(),{transport,maxSubscriptions:0,onerror:()=>console.error('Morning MCP transport error. Reconnect your client.')});
     for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>void handle.close());
   }
 }catch(error){console.error(error instanceof Error?error.message:'Morning MCP could not start.');process.exitCode=1;}
