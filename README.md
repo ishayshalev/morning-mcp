@@ -1,8 +1,8 @@
 <div dir="rtl" lang="he">
 
-# morning (green invoice) mcp
+<h1 dir="rtl" align="right"><span dir="ltr">morning (green invoice) mcp</span></h1>
 
-mcp למערכת ניהול חשבונות מורנינג (לשעבר חשבונית ירוקה)
+<p dir="rtl" align="right"><span dir="ltr">mcp</span> למערכת ניהול חשבונות מורנינג (לשעבר חשבונית ירוקה)</p>
 
 חיבור מקומי בין מורנינג (חשבונית ירוקה) לסוכני AI כמו Codex ו־Claude. כל משתמש מתקין במחשב שלו ומחבר את מפתחות ה־API של החשבון שלו. אין הרשמה נוספת.
 
