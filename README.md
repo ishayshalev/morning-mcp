@@ -19,13 +19,13 @@
 
 מעתיקים ל־Codex או ל־Claude Code שמותקן במחשב:
 
-<pre dir="rtl"><code>התקן לי את Morning MCP וחבר אותו לסוכן שבו אנחנו עובדים:
+<pre dir="ltr" align="left"><code>Install Morning MCP and connect it to the agent we're using:
 https://github.com/ishayshalev/morning-mcp
 
-קרא את docs/INSTALL-AGENT.md ופעל לפי ההוראות.
-פתח לי את עמוד ההגדרה המקומי. את המפתחות אדביק בעצמי בדפדפן.
-אל תבקש מפתחות בצ׳אט ואל תקרא את קובץ המפתחות.
-אל תגדיר אישורים אוטומטיים.</code></pre>
+Read docs/INSTALL-AGENT.md and follow its instructions.
+Open the local setup page. I will paste my Morning API key ID and secret there myself.
+Do not ask for keys in chat or read the credentials file.
+Do not enable automatic approvals.</code></pre>
 
 צריך macOS או Linux, ‏Node.js 22 ומעלה ו־Git. הסוכן יעזור להתקין אם חסר משהו. אפשר לחבר גם Claude Desktop ולקוחות MCP מקומיים אחרים. ביצוע שינויים דורש לקוח שתומך בחלון אישור MCP.
 
