@@ -1,0 +1,4270 @@
+{
+  "version": "2.0.0",
+  "reviewedAt": "2026-10-04",
+  "source": "https://developers.morning.co/docs/openapi.bundled.json",
+  "operations": [
+    {
+      "id": "obtainAccessToken",
+      "method": "POST",
+      "path": "/idp/v1/oauth/token",
+      "title": "Obtain an Access Token",
+      "group": "Authentication",
+      "description": "This endpoint returns an access token (issued as a signed JWT) in the response body as `accessToken`.\n\n**NOTES:**\n- Please be advised that **the `accessToken` is valid for 1 hour.** Once a token becomes invalid, requests to protected endpoints will return a `401 Unauthorized` error, and you will need to request a new token.\n- The access token is scoped to the business associated with your API keys.\n\n* Error Handling - All error responses follow the OAuth 2.0 error format (RFC 6749):\n\n| Status | Error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |\n|:---|:---|:---|\n| 400 | `invalid_request` | Missing `grant_type` parameter |\n| 400 | `unsupported_grant_type` | `grant_type` is not `client_credentials` |\n| 400 | `invalid_grant` | API key privilege is expired, revoked, or pending |\n| 400 | `unauthorized_client` | No active subscription, or subscription does not include API access |\n| 401 | `invalid_client` | Missing or incorrect `client_id`/`client_secret`, or application/account is blocked |\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |",
+      "mode": "special",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "body": {
+        "type": "object",
+        "properties": {
+          "grant_type": {
+            "type": "string",
+            "enum": [
+              "client_credentials"
+            ],
+            "description": "OAuth 2.0 grant type. Must be `client_credentials`.",
+            "maxLength": 10000
+          },
+          "client_id": {
+            "type": "string",
+            "description": "API Key Client ID. For example: `a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d`.",
+            "maxLength": 10000
+          },
+          "client_secret": {
+            "type": "string",
+            "description": "API Key Client Secret. Keep it server-side — never embed it in client-side code or commit it to source control. For example: `Ex4mpleS3cret-DoNotUse`.",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "grant_type",
+          "client_id",
+          "client_secret"
+        ],
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "special": "internal_authentication",
+      "fingerprint": "26e869045ade8ee30b947a4de914e0a31cf0c74a2c49d21279d79a3062fbf20b"
+    },
+    {
+      "id": "addDocument",
+      "method": "POST",
+      "path": "/documents",
+      "title": "Add Document",
+      "group": "Documents",
+      "description": "Add a document to the current business.\n\nThe document will be generated based on the default business and document settings, and by any overriding request attributes received in this endpoint.\n\n**Notes:**\n- **VAT Configuration** — When declaring your `vatType`, you can define the general VAT type of the entire document, as well as the `vatType` for each individual income row.\n- **Document Linking** — Use `linkedDocumentIds` to state the related documents. For example, when creating a receipt, include the original invoice document ID in this array. This linkage enables the system to automatically mark the original invoice as closed.\n- **Payment Association** — The `linkedPaymentId` field allows you to define the payment ID that the document is relevant to. This can be attached only to invoice documents (type `305`).\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "change",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "body": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Document description. For example: `Just an order`.",
+            "maxLength": 10000
+          },
+          "remarks": {
+            "type": "string",
+            "description": "Document remarks. For example: `Some remarks`.",
+            "maxLength": 10000
+          },
+          "footer": {
+            "type": "string",
+            "description": "Document footer text. For example: `Texts in footer`.",
+            "maxLength": 10000
+          },
+          "emailContent": {
+            "type": "string",
+            "description": "Custom extra text appearing in the email sent to the customer. For example: `Email content`.",
+            "maxLength": 10000
+          },
+          "type": {
+            "type": "integer",
+            "description": "Document type code.\n\n| Code | Type |\n|------|------|\n| 10 | הצעת מחיר |\n| 20 | חשבון / אישור תשלום |\n| 100 | הזמנה |\n| 200 | תעודת משלוח |\n| 210 | תעודת החזרה |\n| 300 | חשבון עסקה |\n| 305 | חשבונית מס |\n| 320 | חשבונית מס / קבלה |\n| 330 | חשבונית זיכוי |\n| 400 | קבלה |\n| 405 | קבלה על תרומה |\n| 410 | ביטול תרומה |\n| 500 | הזמנת רכש |\n| 600 | קבלת פיקדון |\n| 610 | משיכת פיקדון |"
+          },
+          "date": {
+            "type": "string",
+            "description": "Document date in the format `YYYY-MM-DD`. Defaults to today. For example: `2026-05-12`.",
+            "maxLength": 10000,
+            "format": "date"
+          },
+          "dueDate": {
+            "type": "string",
+            "description": "Document payment due date in the format `YYYY-MM-DD`. For example: `2026-05-31`.",
+            "maxLength": 10000,
+            "format": "date"
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "he",
+              "en"
+            ],
+            "description": "Content language",
+            "maxLength": 10000
+          },
+          "currency": {
+            "type": "string",
+            "description": "3-letter ISO currency code.\n\n| Code | Name |\n|------|------|\n| ILS | שקל |\n| USD | דולר |\n| EUR | אירו |\n| GBP | ליש״ט |\n| JPY | יין יפני |\n| CHF | פרנק שוויצרי |\n| CNY | יואן סיני |\n| AUD | דולר אוסטרלי |\n| CAD | דולר קנדי |\n| RUB | רובל |\n| BRL | ריאל ברזילאי |\n| HKD | דולר הונג קונגי |\n| SGD | דולר סינגפורי |\n| THB | באט תאילנדי |\n| MXN | פזו מקסיקני |\n| TRY | לירה טורקית |\n| NZD | דולר ניו זילנדי |\n| SEK | כתר שבדי |\n| NOK | כתר נורבגי |\n| DKK | כתר דני |\n| KRW | וון דרום קוריאני |\n| INR | רופי הודי |\n| IDR | רופי אינדונזי |\n| PLN | זלוטי |\n| RON | לאו רומני |\n| ZAR | ראנד דרא״פ |\n| HRK | קונה |",
+            "maxLength": 10000
+          },
+          "vatType": {
+            "type": "integer",
+            "description": "Document-level VAT type.\n\n| Value | Meaning |\n|-------|---------|\n| 0 | Default (based on business type) |\n| 1 | Exempt (VAT-free) |\n| 2 | Mixed (contains both exempt and taxable rows) |"
+          },
+          "discount": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number",
+                "description": "Discount amount (excluded from VAT). For example: 1."
+              },
+              "type": {
+                "type": "string",
+                "description": "Discount amount type.\n\n| Value | Meaning |\n|-------|---------|\n| `sum` | Amount in currency units |\n| `percentage` | Amount in percentage units |",
+                "maxLength": 10000
+              }
+            },
+            "required": [
+              "amount",
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "rounding": {
+            "type": "boolean",
+            "description": "Round the amounts. Defaults to `false`.",
+            "default": false
+          },
+          "signed": {
+            "type": "boolean",
+            "description": "Digitally sign the document. Defaults to `true`.",
+            "default": true
+          },
+          "attachment": {
+            "type": "boolean",
+            "description": "Attach the document in the email sent to the recipient. Defaults to `false`.",
+            "default": false
+          },
+          "paymentRequestData": {
+            "type": "object",
+            "description": "Payment request configuration",
+            "properties": {
+              "plugins": {
+                "type": "array",
+                "description": "Payment plugins to use (can be up to one in each channel [e.g.: Credit card (Leumicard / Cardcom), PayPal]).",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Plugin ID. For example: `031e827a-c664-c1e4-d231-a80027271123`.",
+                      "maxLength": 10000
+                    },
+                    "group": {
+                      "type": "integer",
+                      "description": "Payment plugin group.\n\n| Code | Group |\n|------|-------|\n| 100 | Credit Card |\n| 110 | PayPal |\n| 120 | bit |\n| 150 | Google Pay |\n| 160 | Apple Pay |\n| 170 | Payment Initiation Service (PIS) |"
+                    },
+                    "type": {
+                      "type": "integer",
+                      "description": "Payment plugin type.\n\n| Code | Plugin |\n|------|--------|\n| 12010 | PayPal (פייפאל) |\n| 12100 | קארדקום |\n| 12120 | מקס |\n| 12130 | Digital Payments (Grow) תשלומים דיגיטליים (גרו) |\n| 12200 | Digital Payments (Morning) תשלומים דיגיטליים |"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "maxItems": 200
+              },
+              "maxPayments": {
+                "type": "integer",
+                "description": "Maximum payments allowed (credit card channel only). For example: 1."
+              }
+            },
+            "additionalProperties": false
+          },
+          "client": {
+            "type": "object",
+            "description": "Client information",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Existing client ID. For example: `7944827a-c664-11e4-8231-080027271114`.",
+                "maxLength": 10000
+              },
+              "name": {
+                "type": "string",
+                "description": "Client name. For example: `John Doe`.",
+                "maxLength": 10000
+              },
+              "emails": {
+                "type": "array",
+                "description": "Client emails — the document download link will be sent to these addresses. For example: `[\"email1@example.com\", \"email2@example.com\"]`.",
+                "items": {
+                  "type": "string",
+                  "maxLength": 10000
+                },
+                "maxItems": 200
+              },
+              "taxId": {
+                "type": "string",
+                "description": "Client tax ID. For example: `0123456789`.",
+                "maxLength": 10000
+              },
+              "address": {
+                "type": "string",
+                "description": "Client address. For example: `1 Luria St`.",
+                "maxLength": 10000
+              },
+              "city": {
+                "type": "string",
+                "description": "Client city. For example: `Tel Aviv`.",
+                "maxLength": 10000
+              },
+              "zip": {
+                "type": "string",
+                "description": "Client zip code. For example: `1234567`.",
+                "maxLength": 10000
+              },
+              "country": {
+                "type": "string",
+                "description": "Client 2-letter ISO country code. Defaults to `IL`. For example: `IL`.",
+                "default": "IL",
+                "maxLength": 10000
+              },
+              "phone": {
+                "type": "string",
+                "description": "Client phone. For example: `+972-54-1234567`.",
+                "maxLength": 10000
+              },
+              "fax": {
+                "type": "string",
+                "description": "Client fax. For example: `+972-54-1234567`.",
+                "maxLength": 10000
+              },
+              "mobile": {
+                "type": "string",
+                "description": "Client mobile. For example: `+972-54-1234567`.",
+                "maxLength": 10000
+              },
+              "add": {
+                "type": "boolean",
+                "description": "Add a temporary client to the clients list. Defaults to `false`.",
+                "default": false
+              },
+              "self": {
+                "type": "boolean",
+                "description": "Is this a self-invoice? Defaults to `false`.",
+                "default": false
+              }
+            },
+            "additionalProperties": false
+          },
+          "income": {
+            "type": "array",
+            "description": "Income rows",
+            "items": {
+              "type": "object",
+              "properties": {
+                "catalogNum": {
+                  "type": "string",
+                  "description": "Catalog number. For example: `MXDFSDD`.",
+                  "maxLength": 10000
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Item description. For example: `Item description`.",
+                  "maxLength": 10000
+                },
+                "quantity": {
+                  "type": "number",
+                  "description": "Quantity. For example: 1."
+                },
+                "price": {
+                  "type": "number",
+                  "description": "Item price. For example: 300."
+                },
+                "currency": {
+                  "type": "string",
+                  "description": "3-letter ISO currency code.\n\n| Code | Name |\n|------|------|\n| ILS | שקל |\n| USD | דולר |\n| EUR | אירו |\n| GBP | ליש״ט |\n| JPY | יין יפני |\n| CHF | פרנק שוויצרי |\n| CNY | יואן סיני |\n| AUD | דולר אוסטרלי |\n| CAD | דולר קנדי |\n| RUB | רובל |\n| BRL | ריאל ברזילאי |\n| HKD | דולר הונג קונגי |\n| SGD | דולר סינגפורי |\n| THB | באט תאילנדי |\n| MXN | פזו מקסיקני |\n| TRY | לירה טורקית |\n| NZD | דולר ניו זילנדי |\n| SEK | כתר שבדי |\n| NOK | כתר נורבגי |\n| DKK | כתר דני |\n| KRW | וון דרום קוריאני |\n| INR | רופי הודי |\n| IDR | רופי אינדונזי |\n| PLN | זלוטי |\n| RON | לאו רומני |\n| ZAR | ראנד דרא״פ |\n| HRK | קונה |",
+                  "maxLength": 10000
+                },
+                "currencyRate": {
+                  "type": "number",
+                  "description": "Currency rate relative to ILS. Defaults to 1. For example: 1.",
+                  "default": 1
+                },
+                "vatRate": {
+                  "type": "number",
+                  "description": "VAT rate of the item. For example: 0.18."
+                },
+                "itemId": {
+                  "type": "string",
+                  "description": "The ID of an existing item to attach as income. For example: `8b338c95-095e-46d4-b2c6-331747508759`.",
+                  "maxLength": 10000
+                },
+                "vatType": {
+                  "type": "integer",
+                  "description": "Item VAT type calculation.\n\n| Value | Meaning |\n|-------|---------|\n| 0 | Default (VAT added based on business type) |\n| 1 | Included (VAT included in price) |\n| 2 | Exempt (VAT-free) |"
+                }
+              },
+              "required": [
+                "description",
+                "quantity",
+                "price",
+                "currency",
+                "vatType"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 200
+          },
+          "payment": {
+            "type": "array",
+            "description": "Payment rows",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "description": "Payment date in the format `YYYY-MM-DD`. For example: `2026-05-21`.",
+                  "maxLength": 10000,
+                  "format": "date"
+                },
+                "type": {
+                  "type": "integer",
+                  "description": "Payment method type.\n\n| Code | Method |\n|------|--------|\n| 0 | ניכוי במקור |\n| 1 | מזומן |\n| 2 | צ׳ק |\n| 3 | כרטיס אשראי |\n| 4 | העברה בנקאית |\n| 5 | פייפאל |\n| 10 | אפליקציית תשלום |\n| 11 | אחר |"
+                },
+                "price": {
+                  "type": "number",
+                  "description": "Payment amount. For example: 300."
+                },
+                "currency": {
+                  "type": "string",
+                  "description": "3-letter ISO currency code.\n\n| Code | Name |\n|------|------|\n| ILS | שקל |\n| USD | דולר |\n| EUR | אירו |\n| GBP | ליש״ט |\n| JPY | יין יפני |\n| CHF | פרנק שוויצרי |\n| CNY | יואן סיני |\n| AUD | דולר אוסטרלי |\n| CAD | דולר קנדי |\n| RUB | רובל |\n| BRL | ריאל ברזילאי |\n| HKD | דולר הונג קונגי |\n| SGD | דולר סינגפורי |\n| THB | באט תאילנדי |\n| MXN | פזו מקסיקני |\n| TRY | לירה טורקית |\n| NZD | דולר ניו זילנדי |\n| SEK | כתר שבדי |\n| NOK | כתר נורבגי |\n| DKK | כתר דני |\n| KRW | וון דרום קוריאני |\n| INR | רופי הודי |\n| IDR | רופי אינדונזי |\n| PLN | זלוטי |\n| RON | לאו רומני |\n| ZAR | ראנד דרא״פ |\n| HRK | קונה |",
+                  "maxLength": 10000
+                },
+                "currencyRate": {
+                  "type": "number",
+                  "description": "Currency rate relative to ILS. Defaults to 1. For example: 1.",
+                  "default": 1
+                },
+                "bankName": {
+                  "type": "string",
+                  "description": "Bank name (required when using cheques). For example: `My Bank`.",
+                  "maxLength": 10000
+                },
+                "bankBranch": {
+                  "type": "string",
+                  "description": "Bank branch (required when using cheques). For example: `198`.",
+                  "maxLength": 10000
+                },
+                "bankAccount": {
+                  "type": "string",
+                  "description": "Bank account (required when using cheques). For example: `212435`.",
+                  "maxLength": 10000
+                },
+                "chequeNum": {
+                  "type": "string",
+                  "description": "Cheque number (required when using cheques). For example: `10002`.",
+                  "maxLength": 10000
+                },
+                "accountId": {
+                  "type": "string",
+                  "description": "Payer account (PayPal / Payment App / Other). For example: `TFGFFGSYYE`.",
+                  "maxLength": 10000
+                },
+                "transactionId": {
+                  "type": "string",
+                  "description": "Transaction ID (PayPal / Payment App / Other). For example: `TGBBBXNLKS75SKJS`.",
+                  "maxLength": 10000
+                },
+                "appType": {
+                  "type": "integer",
+                  "description": "Payment application type.\n\n| Code | App |\n|------|-----|\n| 1 | Bit |\n| 2 | Pay |\n| 3 | PayBox |\n| 5 | Google Pay |\n| 6 | Apple Pay |"
+                },
+                "subType": {
+                  "type": "integer",
+                  "description": "Other payment sub type (required when using 'other' as a Payment type)\n\n| Code | Type |\n|------|------|\n| 1 | ביטקוין |\n| 2 | שווה כסף |\n| 3 | V-Check |\n| 4 | שובר מתנה |\n| 5 | ניכוי חלק עובד ביטוח לאומי |\n| 6 | אתריום |\n| 7 | BUYME שובר |\n| 9 | ניכוי אחר |"
+                },
+                "cardType": {
+                  "type": "integer",
+                  "description": "Credit card brand.\n\n| Code | Brand |\n|------|-------|\n| 0 | Unknown |\n| 1 | Isracard |\n| 2 | Visa |\n| 3 | Mastercard |\n| 4 | American Express |\n| 5 | Diners |"
+                },
+                "cardNum": {
+                  "type": "string",
+                  "description": "Credit card's last 4 digits. For example: `8765`.",
+                  "maxLength": 10000
+                },
+                "dealType": {
+                  "type": "integer",
+                  "description": "Credit card deal type.\n\n| Code | Type |\n|------|------|\n| 1 | Standard |\n| 2 | Payments |\n| 3 | Credit |\n| 4 | Deferred |\n| 5 | Other |\n| 6 | Recurring |"
+                },
+                "numPayments": {
+                  "type": "integer",
+                  "description": "Credit card payments count (1–36). For example: 1.",
+                  "minimum": 1,
+                  "maximum": 36
+                },
+                "firstPayment": {
+                  "type": "number",
+                  "description": "Credit card first payment amount. For example: 10."
+                }
+              },
+              "required": [
+                "date",
+                "type",
+                "price",
+                "currency"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 200
+          },
+          "linkedDocumentIds": {
+            "type": "array",
+            "description": "Linked document IDs. When creating a receipt, include the original invoice document ID — this will automatically close the original invoice if needed. For example: `[\"031e827a-c664-c1e4-d231-a80027271123\"]`.",
+            "items": {
+              "type": "string",
+              "maxLength": 10000
+            },
+            "maxItems": 200
+          },
+          "linkedPaymentId": {
+            "type": "string",
+            "description": "Linked payment ID. Can only be attached to invoice documents (type `305`). For example: `031e827a-c664-c1e4-d231-a80027271123`.",
+            "maxLength": 10000
+          },
+          "linkType": {
+            "type": "string",
+            "description": "Reference type (applicable only when using `linkedDocumentIds`).\n\n| Value | Meaning |\n|-------|---------|\n| `link` | Document is related to another |\n| `cancel` | Document cancels another |",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "type",
+          "lang",
+          "currency",
+          "vatType",
+          "income"
+        ],
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "ad2710d40c8a850ee7396e5545bc2dbe9b6e936ce2e8bea5c6f3da3f0d524246"
+    },
+    {
+      "id": "searchDocuments",
+      "method": "POST",
+      "path": "/documents/search",
+      "title": "Search Documents",
+      "group": "Documents",
+      "description": "Search the documents of the current business using any combination of the filters in the request body. All filters are optional; omitting the body returns the most recent documents. Results are paginated.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "body": {
+        "type": "object",
+        "description": "Filters for the document search. All fields are optional.",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "Page number to retrieve. Defaults to 1.",
+            "default": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "description": "Number of results per page. Defaults to 25.",
+            "default": 25
+          },
+          "number": {
+            "type": "integer",
+            "description": "Filter by document serial number. For example: 12001."
+          },
+          "type": {
+            "type": "array",
+            "description": "Filter by document type(s).\n\n| Code | Type |\n|------|------|\n| 10 | הצעת מחיר |\n| 20 | חשבון / אישור תשלום |\n| 100 | הזמנה |\n| 200 | תעודת משלוח |\n| 210 | תעודת החזרה |\n| 300 | חשבון עסקה |\n| 305 | חשבונית מס |\n| 320 | חשבונית מס / קבלה |\n| 330 | חשבונית זיכוי |\n| 400 | קבלה |\n| 405 | קבלה על תרומה |\n| 410 | ביטול תרומה |\n| 500 | הזמנת רכש |\n| 600 | קבלת פיקדון |\n| 610 | משיכת פיקדון |",
+            "items": {
+              "type": "integer",
+              "description": "Document type code.\n\n| Code | Type |\n|------|------|\n| 10 | הצעת מחיר |\n| 20 | חשבון / אישור תשלום |\n| 100 | הזמנה |\n| 200 | תעודת משלוח |\n| 210 | תעודת החזרה |\n| 300 | חשבון עסקה |\n| 305 | חשבונית מס |\n| 320 | חשבונית מס / קבלה |\n| 330 | חשבונית זיכוי |\n| 400 | קבלה |\n| 405 | קבלה על תרומה |\n| 410 | ביטול תרומה |\n| 500 | הזמנת רכש |\n| 600 | קבלת פיקדון |\n| 610 | משיכת פיקדון |"
+            },
+            "maxItems": 200
+          },
+          "status": {
+            "type": "array",
+            "description": "Filter by document status(es).\n\n| Code | Status |\n|------|--------|\n| 0 | מסמך פתוח |\n| 1 | מסמך סגור |\n| 2 | מסמך סומן ידנית כסגור |\n| 3 | מסמך מבטל |\n| 4 | מסמך שבוטל |",
+            "items": {
+              "type": "integer",
+              "description": "Document status.\n\n| Code | Status |\n|------|--------|\n| 0 | מסמך פתוח |\n| 1 | מסמך סגור |\n| 2 | מסמך סומן ידנית כסגור |\n| 3 | מסמך מבטל |\n| 4 | מסמך שבוטל |"
+            },
+            "maxItems": 200
+          },
+          "paymentTypes": {
+            "type": "array",
+            "description": "Filter by payment type(s) used in the document.\n\n| Code | Method |\n|------|--------|\n| 0 | ניכוי במקור |\n| 1 | מזומן |\n| 2 | צ׳ק |\n| 3 | כרטיס אשראי |\n| 4 | העברה בנקאית |\n| 5 | פייפאל |\n| 10 | אפליקציית תשלום |\n| 11 | אחר |",
+            "items": {
+              "type": "integer",
+              "description": "Payment method type.\n\n| Code | Method |\n|------|--------|\n| 0 | ניכוי במקור |\n| 1 | מזומן |\n| 2 | צ׳ק |\n| 3 | כרטיס אשראי |\n| 4 | העברה בנקאית |\n| 5 | פייפאל |\n| 10 | אפליקציית תשלום |\n| 11 | אחר |"
+            },
+            "maxItems": 200
+          },
+          "fromDate": {
+            "type": "string",
+            "description": "Return documents whose document date from this date, in the format `YYYY-MM-DD`. For example: `2016-01-01`.",
+            "maxLength": 10000,
+            "format": "date"
+          },
+          "toDate": {
+            "type": "string",
+            "description": "Return documents whose document date to this date, in the format `YYYY-MM-DD`. For example: `2016-01-31`.",
+            "maxLength": 10000,
+            "format": "date"
+          },
+          "clientId": {
+            "type": "string",
+            "description": "Filter by client ID. For example: `28fa4c1d-a29b-11e4-963c-18002725111e`.",
+            "maxLength": 10000
+          },
+          "clientName": {
+            "type": "string",
+            "description": "Filter by client name. For example: `John`.",
+            "maxLength": 10000
+          },
+          "description": {
+            "type": "string",
+            "description": "Filter by document description. For example: `Any text`.",
+            "maxLength": 10000
+          },
+          "download": {
+            "type": "boolean",
+            "description": "Filter by whether the document was downloaded by the client. For example: `true`."
+          },
+          "sort": {
+            "type": "string",
+            "description": "Field to sort the result set by.\n\n| Value | Sorts by |\n|-------|----------|\n| `documentDate` | Document (issue) date |\n| `dueDate` | Due date |\n| `client` | Client name |",
+            "maxLength": 10000
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyRequired": false,
+      "fingerprint": "9ed3a89addb63eb25d7482b24e12e782f66ec31e145c2f5c5c1ae4dfa12b716f"
+    },
+    {
+      "id": "searchDocumentPayments",
+      "method": "POST",
+      "path": "/documents/payments/search",
+      "title": "Search Payments in Documents",
+      "group": "Documents",
+      "description": "Search the payments recorded across the current business's documents, using any combination of the filters in the request body. Each result is the document that contains the matching payment(s), with the payments in its `payment` array. All filters are optional. Results are paginated.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "body": {
+        "type": "object",
+        "description": "Filters for the payments-in-documents search. All fields are optional.",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "Page number to retrieve. Defaults to 1.",
+            "default": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "description": "Number of results per page. Defaults to 25.",
+            "default": 25
+          },
+          "type": {
+            "type": "array",
+            "description": "Filter by document type(s).\n\n| Code | Type |\n|------|------|\n| 320 | חשבונית מס / קבלה |\n| 400 | קבלה |\n| 405 | קבלה על תרומה |\n| 600 | קבלת פיקדון |\n| 610 | משיכת פיקדון |",
+            "items": {
+              "type": "integer",
+              "description": "Document type accepted by the payments search filter.\n\n| Code | Type |\n|------|------|\n| 320 | חשבונית מס / קבלה |\n| 400 | קבלה |\n| 405 | קבלה על תרומה |\n| 600 | קבלת פיקדון |\n| 610 | משיכת פיקדון |"
+            },
+            "maxItems": 200
+          },
+          "paymentTypes": {
+            "type": "array",
+            "description": "Filter by payment type(s) used in the document.\n\n| Code | Method |\n|------|--------|\n| 0 | ניכוי במקור |\n| 1 | מזומן |\n| 2 | צ׳ק |\n| 3 | כרטיס אשראי |\n| 4 | העברה בנקאית |\n| 5 | פייפאל |\n| 10 | אפליקציית תשלום |\n| 11 | אחר |",
+            "items": {
+              "type": "integer",
+              "description": "Payment method type.\n\n| Code | Method |\n|------|--------|\n| 0 | ניכוי במקור |\n| 1 | מזומן |\n| 2 | צ׳ק |\n| 3 | כרטיס אשראי |\n| 4 | העברה בנקאית |\n| 5 | פייפאל |\n| 10 | אפליקציית תשלום |\n| 11 | אחר |"
+            },
+            "maxItems": 200
+          },
+          "fromDate": {
+            "type": "string",
+            "description": "Return payments dated on or after this date, in the format `YYYY-MM-DD`. For example: `2016-01-01`.",
+            "maxLength": 10000,
+            "format": "date"
+          },
+          "toDate": {
+            "type": "string",
+            "description": "Return payments dated on or before this date, in the format `YYYY-MM-DD`. For example: `2016-01-31`.",
+            "maxLength": 10000,
+            "format": "date"
+          },
+          "paymentId": {
+            "type": "string",
+            "description": "Payment identifier, such as a cheque number or PayPal transaction ID. For example: `427547`.",
+            "maxLength": 10000
+          },
+          "sort": {
+            "type": "string",
+            "description": "Field and direction to sort the result set by.\n\n| Value | Sorts by |\n|-------|----------|\n| `date:desc` | Payment date, descending |\n| `date:asc` | Payment date, ascending |",
+            "maxLength": 10000
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyRequired": false,
+      "fingerprint": "0eca6817ed4c724a54c18fb374266bb96f9a7a743b8ec424066e9be652b02da5"
+    },
+    {
+      "id": "addPreviewDocument",
+      "method": "POST",
+      "path": "/documents/preview",
+      "title": "Get a Preview Document",
+      "group": "Documents",
+      "description": "Previews a document before the actual generation.\n\nThis endpoint returns a file in Base64 format (you can read more about Base64 [here](https://en.wikipedia.org/wiki/Base64)).\n\nIf you would like to view the file on your website there are built-in plugins to display PDF, other than that - if you would like to have a consistent user experience through all browsers (including mobile browsers) we would suggest using [PDF.js](https://mozilla.github.io/pdf.js/) (an amazing Mozilla library), which can view PDF from Base64 format.\n\nIf you would like to add a download button for the preview in your website, here is a simple script to do that (do not forget to switch the {base64string} with the Base64 file that you received from the result):\n\n```\n<a download=\"preview-document.pdf\" href=\"data:application/pdf;base64,{base64string}\">Download Preview</a>\n```\n\n**NOTE:** If you would like just to check how a preview file looks, use the string that was given in the `file` property from our server response, put it in the following website: <https://www.freeformatter.com/base64-encoder.html> and click `DECODE AND DOWNLOAD`. This will download the base64 string as a PDF file into your computer so that you can view it.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "body": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Document description. For example: `Just an order`.",
+            "maxLength": 10000
+          },
+          "remarks": {
+            "type": "string",
+            "description": "Document remarks. For example: `Some remarks`.",
+            "maxLength": 10000
+          },
+          "footer": {
+            "type": "string",
+            "description": "Document footer text. For example: `Texts in footer`.",
+            "maxLength": 10000
+          },
+          "emailContent": {
+            "type": "string",
+            "description": "Custom extra text appearing in the email sent to the customer. For example: `Email content`.",
+            "maxLength": 10000
+          },
+          "type": {
+            "type": "integer",
+            "description": "Document type code.\n\n| Code | Type |\n|------|------|\n| 10 | הצעת מחיר |\n| 20 | חשבון / אישור תשלום |\n| 100 | הזמנה |\n| 200 | תעודת משלוח |\n| 210 | תעודת החזרה |\n| 300 | חשבון עסקה |\n| 305 | חשבונית מס |\n| 320 | חשבונית מס / קבלה |\n| 330 | חשבונית זיכוי |\n| 400 | קבלה |\n| 405 | קבלה על תרומה |\n| 410 | ביטול תרומה |\n| 500 | הזמנת רכש |\n| 600 | קבלת פיקדון |\n| 610 | משיכת פיקדון |"
+          },
+          "date": {
+            "type": "string",
+            "description": "Document date in the format `YYYY-MM-DD`. Defaults to today. For example: `2026-05-12`.",
+            "maxLength": 10000,
+            "format": "date"
+          },
+          "dueDate": {
+            "type": "string",
+            "description": "Document payment due date in the format `YYYY-MM-DD`. For example: `2026-05-31`.",
+            "maxLength": 10000,
+            "format": "date"
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "he",
+              "en"
+            ],
+            "description": "Content language",
+            "maxLength": 10000
+          },
+          "currency": {
+            "type": "string",
+            "description": "3-letter ISO currency code.\n\n| Code | Name |\n|------|------|\n| ILS | שקל |\n| USD | דולר |\n| EUR | אירו |\n| GBP | ליש״ט |\n| JPY | יין יפני |\n| CHF | פרנק שוויצרי |\n| CNY | יואן סיני |\n| AUD | דולר אוסטרלי |\n| CAD | דולר קנדי |\n| RUB | רובל |\n| BRL | ריאל ברזילאי |\n| HKD | דולר הונג קונגי |\n| SGD | דולר סינגפורי |\n| THB | באט תאילנדי |\n| MXN | פזו מקסיקני |\n| TRY | לירה טורקית |\n| NZD | דולר ניו זילנדי |\n| SEK | כתר שבדי |\n| NOK | כתר נורבגי |\n| DKK | כתר דני |\n| KRW | וון דרום קוריאני |\n| INR | רופי הודי |\n| IDR | רופי אינדונזי |\n| PLN | זלוטי |\n| RON | לאו רומני |\n| ZAR | ראנד דרא״פ |\n| HRK | קונה |",
+            "maxLength": 10000
+          },
+          "vatType": {
+            "type": "integer",
+            "description": "Document-level VAT type.\n\n| Value | Meaning |\n|-------|---------|\n| 0 | Default (based on business type) |\n| 1 | Exempt (VAT-free) |\n| 2 | Mixed (contains both exempt and taxable rows) |"
+          },
+          "discount": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number",
+                "description": "Discount amount (excluded from VAT). For example: 1."
+              },
+              "type": {
+                "type": "string",
+                "description": "Discount amount type.\n\n| Value | Meaning |\n|-------|---------|\n| `sum` | Amount in currency units |\n| `percentage` | Amount in percentage units |",
+                "maxLength": 10000
+              }
+            },
+            "required": [
+              "amount",
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "rounding": {
+            "type": "boolean",
+            "description": "Round the amounts. Defaults to `false`.",
+            "default": false
+          },
+          "signed": {
+            "type": "boolean",
+            "description": "Digitally sign the document. Defaults to `true`.",
+            "default": true
+          },
+          "attachment": {
+            "type": "boolean",
+            "description": "Attach the document in the email sent to the recipient. Defaults to `false`.",
+            "default": false
+          },
+          "paymentRequestData": {
+            "type": "object",
+            "description": "Payment request configuration",
+            "properties": {
+              "plugins": {
+                "type": "array",
+                "description": "Payment plugins to use (can be up to one in each channel [e.g.: Credit card (Leumicard / Cardcom), PayPal]).",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Plugin ID. For example: `031e827a-c664-c1e4-d231-a80027271123`.",
+                      "maxLength": 10000
+                    },
+                    "group": {
+                      "type": "integer",
+                      "description": "Payment plugin group.\n\n| Code | Group |\n|------|-------|\n| 100 | Credit Card |\n| 110 | PayPal |\n| 120 | bit |\n| 150 | Google Pay |\n| 160 | Apple Pay |\n| 170 | Payment Initiation Service (PIS) |"
+                    },
+                    "type": {
+                      "type": "integer",
+                      "description": "Payment plugin type.\n\n| Code | Plugin |\n|------|--------|\n| 12010 | PayPal (פייפאל) |\n| 12100 | קארדקום |\n| 12120 | מקס |\n| 12130 | Digital Payments (Grow) תשלומים דיגיטליים (גרו) |\n| 12200 | Digital Payments (Morning) תשלומים דיגיטליים |"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "maxItems": 200
+              },
+              "maxPayments": {
+                "type": "integer",
+                "description": "Maximum payments allowed (credit card channel only). For example: 1."
+              }
+            },
+            "additionalProperties": false
+          },
+          "client": {
+            "type": "object",
+            "description": "Client information",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Existing client ID. For example: `7944827a-c664-11e4-8231-080027271114`.",
+                "maxLength": 10000
+              },
+              "name": {
+                "type": "string",
+                "description": "Client name. For example: `John Doe`.",
+                "maxLength": 10000
+              },
+              "emails": {
+                "type": "array",
+                "description": "Client emails — the document download link will be sent to these addresses. For example: `[\"email1@example.com\", \"email2@example.com\"]`.",
+                "items": {
+                  "type": "string",
+                  "maxLength": 10000
+                },
+                "maxItems": 200
+              },
+              "taxId": {
+                "type": "string",
+                "description": "Client tax ID. For example: `0123456789`.",
+                "maxLength": 10000
+              },
+              "address": {
+                "type": "string",
+                "description": "Client address. For example: `1 Luria St`.",
+                "maxLength": 10000
+              },
+              "city": {
+                "type": "string",
+                "description": "Client city. For example: `Tel Aviv`.",
+                "maxLength": 10000
+              },
+              "zip": {
+                "type": "string",
+                "description": "Client zip code. For example: `1234567`.",
+                "maxLength": 10000
+              },
+              "country": {
+                "type": "string",
+                "description": "Client 2-letter ISO country code. Defaults to `IL`. For example: `IL`.",
+                "default": "IL",
+                "maxLength": 10000
+              },
+              "phone": {
+                "type": "string",
+                "description": "Client phone. For example: `+972-54-1234567`.",
+                "maxLength": 10000
+              },
+              "fax": {
+                "type": "string",
+                "description": "Client fax. For example: `+972-54-1234567`.",
+                "maxLength": 10000
+              },
+              "mobile": {
+                "type": "string",
+                "description": "Client mobile. For example: `+972-54-1234567`.",
+                "maxLength": 10000
+              },
+              "add": {
+                "type": "boolean",
+                "description": "Add a temporary client to the clients list. Defaults to `false`.",
+                "default": false
+              },
+              "self": {
+                "type": "boolean",
+                "description": "Is this a self-invoice? Defaults to `false`.",
+                "default": false
+              }
+            },
+            "additionalProperties": false
+          },
+          "income": {
+            "type": "array",
+            "description": "Income rows",
+            "items": {
+              "type": "object",
+              "properties": {
+                "catalogNum": {
+                  "type": "string",
+                  "description": "Catalog number. For example: `MXDFSDD`.",
+                  "maxLength": 10000
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Item description. For example: `Item description`.",
+                  "maxLength": 10000
+                },
+                "quantity": {
+                  "type": "number",
+                  "description": "Quantity. For example: 1."
+                },
+                "price": {
+                  "type": "number",
+                  "description": "Item price. For example: 300."
+                },
+                "currency": {
+                  "type": "string",
+                  "description": "3-letter ISO currency code.\n\n| Code | Name |\n|------|------|\n| ILS | שקל |\n| USD | דולר |\n| EUR | אירו |\n| GBP | ליש״ט |\n| JPY | יין יפני |\n| CHF | פרנק שוויצרי |\n| CNY | יואן סיני |\n| AUD | דולר אוסטרלי |\n| CAD | דולר קנדי |\n| RUB | רובל |\n| BRL | ריאל ברזילאי |\n| HKD | דולר הונג קונגי |\n| SGD | דולר סינגפורי |\n| THB | באט תאילנדי |\n| MXN | פזו מקסיקני |\n| TRY | לירה טורקית |\n| NZD | דולר ניו זילנדי |\n| SEK | כתר שבדי |\n| NOK | כתר נורבגי |\n| DKK | כתר דני |\n| KRW | וון דרום קוריאני |\n| INR | רופי הודי |\n| IDR | רופי אינדונזי |\n| PLN | זלוטי |\n| RON | לאו רומני |\n| ZAR | ראנד דרא״פ |\n| HRK | קונה |",
+                  "maxLength": 10000
+                },
+                "currencyRate": {
+                  "type": "number",
+                  "description": "Currency rate relative to ILS. Defaults to 1. For example: 1.",
+                  "default": 1
+                },
+                "vatRate": {
+                  "type": "number",
+                  "description": "VAT rate of the item. For example: 0.18."
+                },
+                "itemId": {
+                  "type": "string",
+                  "description": "The ID of an existing item to attach as income. For example: `8b338c95-095e-46d4-b2c6-331747508759`.",
+                  "maxLength": 10000
+                },
+                "vatType": {
+                  "type": "integer",
+                  "description": "Item VAT type calculation.\n\n| Value | Meaning |\n|-------|---------|\n| 0 | Default (VAT added based on business type) |\n| 1 | Included (VAT included in price) |\n| 2 | Exempt (VAT-free) |"
+                }
+              },
+              "required": [
+                "description",
+                "quantity",
+                "price",
+                "currency",
+                "vatType"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 200
+          },
+          "payment": {
+            "type": "array",
+            "description": "Payment rows",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "description": "Payment date in the format `YYYY-MM-DD`. For example: `2026-05-21`.",
+                  "maxLength": 10000,
+                  "format": "date"
+                },
+                "type": {
+                  "type": "integer",
+                  "description": "Payment method type.\n\n| Code | Method |\n|------|--------|\n| 0 | ניכוי במקור |\n| 1 | מזומן |\n| 2 | צ׳ק |\n| 3 | כרטיס אשראי |\n| 4 | העברה בנקאית |\n| 5 | פייפאל |\n| 10 | אפליקציית תשלום |\n| 11 | אחר |"
+                },
+                "price": {
+                  "type": "number",
+                  "description": "Payment amount. For example: 300."
+                },
+                "currency": {
+                  "type": "string",
+                  "description": "3-letter ISO currency code.\n\n| Code | Name |\n|------|------|\n| ILS | שקל |\n| USD | דולר |\n| EUR | אירו |\n| GBP | ליש״ט |\n| JPY | יין יפני |\n| CHF | פרנק שוויצרי |\n| CNY | יואן סיני |\n| AUD | דולר אוסטרלי |\n| CAD | דולר קנדי |\n| RUB | רובל |\n| BRL | ריאל ברזילאי |\n| HKD | דולר הונג קונגי |\n| SGD | דולר סינגפורי |\n| THB | באט תאילנדי |\n| MXN | פזו מקסיקני |\n| TRY | לירה טורקית |\n| NZD | דולר ניו זילנדי |\n| SEK | כתר שבדי |\n| NOK | כתר נורבגי |\n| DKK | כתר דני |\n| KRW | וון דרום קוריאני |\n| INR | רופי הודי |\n| IDR | רופי אינדונזי |\n| PLN | זלוטי |\n| RON | לאו רומני |\n| ZAR | ראנד דרא״פ |\n| HRK | קונה |",
+                  "maxLength": 10000
+                },
+                "currencyRate": {
+                  "type": "number",
+                  "description": "Currency rate relative to ILS. Defaults to 1. For example: 1.",
+                  "default": 1
+                },
+                "bankName": {
+                  "type": "string",
+                  "description": "Bank name (required when using cheques). For example: `My Bank`.",
+                  "maxLength": 10000
+                },
+                "bankBranch": {
+                  "type": "string",
+                  "description": "Bank branch (required when using cheques). For example: `198`.",
+                  "maxLength": 10000
+                },
+                "bankAccount": {
+                  "type": "string",
+                  "description": "Bank account (required when using cheques). For example: `212435`.",
+                  "maxLength": 10000
+                },
+                "chequeNum": {
+                  "type": "string",
+                  "description": "Cheque number (required when using cheques). For example: `10002`.",
+                  "maxLength": 10000
+                },
+                "accountId": {
+                  "type": "string",
+                  "description": "Payer account (PayPal / Payment App / Other). For example: `TFGFFGSYYE`.",
+                  "maxLength": 10000
+                },
+                "transactionId": {
+                  "type": "string",
+                  "description": "Transaction ID (PayPal / Payment App / Other). For example: `TGBBBXNLKS75SKJS`.",
+                  "maxLength": 10000
+                },
+                "appType": {
+                  "type": "integer",
+                  "description": "Payment application type.\n\n| Code | App |\n|------|-----|\n| 1 | Bit |\n| 2 | Pay |\n| 3 | PayBox |\n| 5 | Google Pay |\n| 6 | Apple Pay |"
+                },
+                "subType": {
+                  "type": "integer",
+                  "description": "Other payment sub type (required when using 'other' as a Payment type)\n\n| Code | Type |\n|------|------|\n| 1 | ביטקוין |\n| 2 | שווה כסף |\n| 3 | V-Check |\n| 4 | שובר מתנה |\n| 5 | ניכוי חלק עובד ביטוח לאומי |\n| 6 | אתריום |\n| 7 | BUYME שובר |\n| 9 | ניכוי אחר |"
+                },
+                "cardType": {
+                  "type": "integer",
+                  "description": "Credit card brand.\n\n| Code | Brand |\n|------|-------|\n| 0 | Unknown |\n| 1 | Isracard |\n| 2 | Visa |\n| 3 | Mastercard |\n| 4 | American Express |\n| 5 | Diners |"
+                },
+                "cardNum": {
+                  "type": "string",
+                  "description": "Credit card's last 4 digits. For example: `8765`.",
+                  "maxLength": 10000
+                },
+                "dealType": {
+                  "type": "integer",
+                  "description": "Credit card deal type.\n\n| Code | Type |\n|------|------|\n| 1 | Standard |\n| 2 | Payments |\n| 3 | Credit |\n| 4 | Deferred |\n| 5 | Other |\n| 6 | Recurring |"
+                },
+                "numPayments": {
+                  "type": "integer",
+                  "description": "Credit card payments count (1–36). For example: 1.",
+                  "minimum": 1,
+                  "maximum": 36
+                },
+                "firstPayment": {
+                  "type": "number",
+                  "description": "Credit card first payment amount. For example: 10."
+                }
+              },
+              "required": [
+                "date",
+                "type",
+                "price",
+                "currency"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 200
+          },
+          "linkedDocumentIds": {
+            "type": "array",
+            "description": "Linked document IDs. When creating a receipt, include the original invoice document ID — this will automatically close the original invoice if needed. For example: `[\"031e827a-c664-c1e4-d231-a80027271123\"]`.",
+            "items": {
+              "type": "string",
+              "maxLength": 10000
+            },
+            "maxItems": 200
+          },
+          "linkedPaymentId": {
+            "type": "string",
+            "description": "Linked payment ID. Can only be attached to invoice documents (type `305`). For example: `031e827a-c664-c1e4-d231-a80027271123`.",
+            "maxLength": 10000
+          },
+          "linkType": {
+            "type": "string",
+            "description": "Reference type (applicable only when using `linkedDocumentIds`).\n\n| Value | Meaning |\n|-------|---------|\n| `link` | Document is related to another |\n| `cancel` | Document cancels another |",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "type",
+          "lang",
+          "currency",
+          "vatType",
+          "income"
+        ],
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "fa0cd2bd8141bc4d87a8b6d50a3c38d0bb2c8eac8305302cb00c4083e987be07"
+    },
+    {
+      "id": "getDocumentInformation",
+      "method": "GET",
+      "path": "/documents/info",
+      "title": "Get Document Information",
+      "group": "Documents",
+      "description": "Retrieve metadata about a specific document type — the next document number to assign, supported features (income rows, payment rows, self-invoicing, linked-document flows), default business settings that apply when creating documents of this type, and the payment plugins active on this business.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "integer",
+            "description": "Document type code.\n\n| Code | Type |\n|------|------|\n| 10 | הצעת מחיר |\n| 20 | חשבון / אישור תשלום |\n| 100 | הזמנה |\n| 200 | תעודת משלוח |\n| 210 | תעודת החזרה |\n| 300 | חשבון עסקה |\n| 305 | חשבונית מס |\n| 320 | חשבונית מס / קבלה |\n| 330 | חשבונית זיכוי |\n| 400 | קבלה |\n| 405 | קבלה על תרומה |\n| 410 | ביטול תרומה |\n| 500 | הזמנת רכש |\n| 600 | קבלת פיקדון |\n| 610 | משיכת פיקדון |"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "type",
+          "in": "query"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "1ca5a2d2364f1605e9fbf21902c2efa8bd7b7ad7353d7628efa858d54d3b4618"
+    },
+    {
+      "id": "getDocumentTemplates",
+      "method": "GET",
+      "path": "/documents/templates",
+      "title": "Get Document Templates",
+      "group": "Documents",
+      "description": "Retrieve information about the available document templates and their corresponding colour skins. Templates are global to the system; every business sees the same list.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "bodyRequired": false,
+      "fingerprint": "d4197886006ca458dbbb1c9d00bf9b82c32666e0e03db2f3db3eb13549b9fa43"
+    },
+    {
+      "id": "getDocumentTypes",
+      "method": "GET",
+      "path": "/documents/types",
+      "title": "Get Document Types",
+      "group": "Documents",
+      "description": "Retrieve the available document types as a list of `{ id, name }` pairs. Names are localised by the `lang` query parameter.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "lang": {
+            "type": "string",
+            "enum": [
+              "he",
+              "en"
+            ],
+            "description": "Content language",
+            "maxLength": 10000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "lang",
+          "in": "query"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "fa50e87dc4a92628bf920c31f578d0ae0e015eb72ca47750d78a82e6e59c1629"
+    },
+    {
+      "id": "getDocumentStatuses",
+      "method": "GET",
+      "path": "/documents/statuses",
+      "title": "Get Document Statuses",
+      "group": "Documents",
+      "description": "Retrieve the available document statuses as a list of `{ id, name }` pairs. Names are localised by the `lang` query parameter.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "lang": {
+            "type": "string",
+            "enum": [
+              "he",
+              "en"
+            ],
+            "description": "Content language",
+            "maxLength": 10000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "lang",
+          "in": "query"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "5f85cc24a147ca6c56126087b76ff13bb7e90c29edada3a092eb5803443ffc71"
+    },
+    {
+      "id": "getDocument",
+      "method": "GET",
+      "path": "/documents/{id}",
+      "title": "Get Document",
+      "group": "Documents",
+      "description": "Retrieve a single document by its ID.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "bbcdcff29b554562738a2b1f00275bf3253b2aabe6d2fc95117979774aa64138"
+    },
+    {
+      "id": "getLinkedDocuments",
+      "method": "GET",
+      "path": "/documents/{id}/linked",
+      "title": "Get Linked Documents",
+      "group": "Documents",
+      "description": "Get information about linked / related documents to a specific document.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "d71fa89ebc3cc9cd610d6dfc2aafca487a5bb8b6acd495bf46c252fccc65ca88"
+    },
+    {
+      "id": "getDocumentDownloadLinks",
+      "method": "GET",
+      "path": "/documents/{id}/download/links",
+      "title": "Get Document Download Links",
+      "group": "Documents",
+      "description": "Retrieve download links for a given document. The response includes the original copy plus any localised copies; the `en` link is returned only when an English copy exists.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "051af4ae3b5251a313d985ae1b14ab8fe75f9326f967b68bf168f9356194ed6f"
+    },
+    {
+      "id": "closeDocument",
+      "method": "POST",
+      "path": "/documents/{id}/close",
+      "title": "Close Document",
+      "group": "Documents",
+      "description": "Manually close a document. The status will be set to `Manually closed`.\n\n**Note:** Only documents currently in `Open` status can be closed via this endpoint. Attempting to close a document in any other status will return a validation error.\n\nThe response is the updated document.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "change",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "b712872fa94020e04df20dd09d4d35398c7eb412f331b68a3dddfb4e60308ba7"
+    },
+    {
+      "id": "openDocument",
+      "method": "POST",
+      "path": "/documents/{id}/open",
+      "title": "Open Document",
+      "group": "Documents",
+      "description": "Re-open a document that was previously manually closed. The status will be set to `Open`.\n\n**Note:** Only documents currently in `Manually closed` status can be re-opened via this endpoint. Documents in `Closed` status (closed automatically by the system) or any other status cannot be re-opened and will return a validation error.\n\nThe response is the updated document.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "change",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "ca9839b5fa5859abe38045c0991f36549dee0794967525b345142ad735c0a476"
+    },
+    {
+      "id": "addItem",
+      "method": "POST",
+      "path": "/items",
+      "title": "Add Item",
+      "group": "Items",
+      "description": "Create a new catalog item for the current business.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "change",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "body": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The item name. For example: `גבינייה מפוארת`.",
+            "maxLength": 32
+          },
+          "description": {
+            "type": "string",
+            "description": "The item description. For example: `מאפה גבינייה אישי ומפואר`.",
+            "maxLength": 10000
+          },
+          "price": {
+            "type": "number",
+            "description": "The item price. For example: 5."
+          },
+          "currency": {
+            "type": "string",
+            "description": "3-letter ISO currency code.\n\n| Code | Name |\n|------|------|\n| ILS | שקל |\n| USD | דולר |\n| EUR | אירו |\n| GBP | ליש״ט |\n| JPY | יין יפני |\n| CHF | פרנק שוויצרי |\n| CNY | יואן סיני |\n| AUD | דולר אוסטרלי |\n| CAD | דולר קנדי |\n| RUB | רובל |\n| BRL | ריאל ברזילאי |\n| HKD | דולר הונג קונגי |\n| SGD | דולר סינגפורי |\n| THB | באט תאילנדי |\n| MXN | פזו מקסיקני |\n| TRY | לירה טורקית |\n| NZD | דולר ניו זילנדי |\n| SEK | כתר שבדי |\n| NOK | כתר נורבגי |\n| DKK | כתר דני |\n| KRW | וון דרום קוריאני |\n| INR | רופי הודי |\n| IDR | רופי אינדונזי |\n| PLN | זלוטי |\n| RON | לאו רומני |\n| ZAR | ראנד דרא״פ |\n| HRK | קונה |",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "price",
+          "currency"
+        ],
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "c0d9aba0c6ecbeb8f6571cb044cff3be3a30f48af81dcff936f327517300993a"
+    },
+    {
+      "id": "getItem",
+      "method": "GET",
+      "path": "/items/{id}",
+      "title": "Get Item",
+      "group": "Items",
+      "description": "Retrieve a single item by its ID.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "5f1685708084e2dbfbfae2b0e85a1370e06aafa497d53b0376eae344434c4fc1"
+    },
+    {
+      "id": "updateItem",
+      "method": "PUT",
+      "path": "/items/{id}",
+      "title": "Update Item",
+      "group": "Items",
+      "description": "Update an existing item by its ID. This is a partial update: include only the fields you want to change — any field you omit keeps its current value.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "change",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "body": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The item name. For example: `גבינייה מפוארת`.",
+            "maxLength": 32
+          },
+          "description": {
+            "type": "string",
+            "description": "The item description. For example: `מאפה גבינה ודובדני אמרנה אישי ומפואר`.",
+            "maxLength": 500
+          },
+          "price": {
+            "type": "number",
+            "description": "The item price. For example: 4."
+          },
+          "currency": {
+            "type": "string",
+            "description": "3-letter ISO currency code.\n\n| Code | Name |\n|------|------|\n| ILS | שקל |\n| USD | דולר |\n| EUR | אירו |\n| GBP | ליש״ט |\n| JPY | יין יפני |\n| CHF | פרנק שוויצרי |\n| CNY | יואן סיני |\n| AUD | דולר אוסטרלי |\n| CAD | דולר קנדי |\n| RUB | רובל |\n| BRL | ריאל ברזילאי |\n| HKD | דולר הונג קונגי |\n| SGD | דולר סינגפורי |\n| THB | באט תאילנדי |\n| MXN | פזו מקסיקני |\n| TRY | לירה טורקית |\n| NZD | דולר ניו זילנדי |\n| SEK | כתר שבדי |\n| NOK | כתר נורבגי |\n| DKK | כתר דני |\n| KRW | וון דרום קוריאני |\n| INR | רופי הודי |\n| IDR | רופי אינדונזי |\n| PLN | זלוטי |\n| RON | לאו רומני |\n| ZAR | ראנד דרא״פ |\n| HRK | קונה |",
+            "maxLength": 10000
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "03aba59eb8a5e4e49f6183f70ca88f24eb8fd58453ad3fa2894a880e556cff4a"
+    },
+    {
+      "id": "deleteItem",
+      "method": "DELETE",
+      "path": "/items/{id}",
+      "title": "Delete Item",
+      "group": "Items",
+      "description": "Delete an item by its ID. The response body is an empty object.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "destructive",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "1ab22178bda14320bf0b77ade86f1b187d2311b1ec1a47baf66357a02ecc0e31"
+    },
+    {
+      "id": "searchItems",
+      "method": "POST",
+      "path": "/items/search",
+      "title": "Search Items",
+      "group": "Items",
+      "description": "Search the catalog items of the current business using any combination of the filters in the request body. All filters are optional; omitting the body returns the most recent items. Results are paginated.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "body": {
+        "type": "object",
+        "description": "Filters for the item search. All fields are optional.",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "Page number to retrieve. Defaults to 1.",
+            "default": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "description": "Number of results per page. Defaults to 25.",
+            "default": 25
+          },
+          "name": {
+            "type": "string",
+            "description": "Filter by item name. For example: `גבינייה מפוארת`.",
+            "maxLength": 10000
+          },
+          "description": {
+            "type": "string",
+            "description": "Filter by item description. For example: `מאפה גבינה`.",
+            "maxLength": 10000
+          },
+          "currency": {
+            "type": "string",
+            "description": "3-letter ISO currency code.\n\n| Code | Name |\n|------|------|\n| ILS | שקל |\n| USD | דולר |\n| EUR | אירו |\n| GBP | ליש״ט |\n| JPY | יין יפני |\n| CHF | פרנק שוויצרי |\n| CNY | יואן סיני |\n| AUD | דולר אוסטרלי |\n| CAD | דולר קנדי |\n| RUB | רובל |\n| BRL | ריאל ברזילאי |\n| HKD | דולר הונג קונגי |\n| SGD | דולר סינגפורי |\n| THB | באט תאילנדי |\n| MXN | פזו מקסיקני |\n| TRY | לירה טורקית |\n| NZD | דולר ניו זילנדי |\n| SEK | כתר שבדי |\n| NOK | כתר נורבגי |\n| DKK | כתר דני |\n| KRW | וון דרום קוריאני |\n| INR | רופי הודי |\n| IDR | רופי אינדונזי |\n| PLN | זלוטי |\n| RON | לאו רומני |\n| ZAR | ראנד דרא״פ |\n| HRK | קונה |",
+            "maxLength": 10000
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyRequired": false,
+      "fingerprint": "f8bebf8641e1a6b4257fd8af112618f9b0f892ffd8b666f9462e48478d6cbb76"
+    },
+    {
+      "id": "addClient",
+      "method": "POST",
+      "path": "/clients",
+      "title": "Add Client",
+      "group": "Clients",
+      "description": "Create a new client for the current business.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "change",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "body": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The client name. For example: `יעקב יעקבי`.",
+            "maxLength": 10000
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Is the client currently active or not. Defaults to `true`."
+          },
+          "send": {
+            "type": "boolean",
+            "description": "Whether to automatically send emails to the client when assigning them to a document. Defaults to `true` when the client has at least one email address."
+          },
+          "department": {
+            "type": "string",
+            "description": "The client department. For example: `מחלקת כספים`.",
+            "maxLength": 10000
+          },
+          "taxId": {
+            "type": "string",
+            "description": "The client tax ID. For example: `999152580`.",
+            "maxLength": 10000
+          },
+          "accountingKey": {
+            "type": "string",
+            "description": "The client accounting key. Generated automatically if omitted. For example: `b6230777`.",
+            "maxLength": 10000
+          },
+          "paymentTerms": {
+            "type": "integer",
+            "description": "Payment term.\n\n| Code | Term |\n|------|------|\n| -1 | מיידי |\n| 0 | שוטף |\n| 10 | שוטף +10 |\n| 15 | שוטף +15 |\n| 30 | שוטף +30 |\n| 45 | שוטף +45 |\n| 60 | שוטף +60 |\n| 75 | שוטף +75 |\n| 90 | שוטף +90 |\n| 120 | שוטף +120 |"
+          },
+          "bankName": {
+            "type": "string",
+            "description": "The client bank name. For example: `12`.",
+            "maxLength": 10000
+          },
+          "bankBranch": {
+            "type": "string",
+            "description": "The client bank branch number. For example: `450`.",
+            "maxLength": 10000
+          },
+          "bankAccount": {
+            "type": "string",
+            "description": "The client bank account number. For example: `1111`.",
+            "maxLength": 10000
+          },
+          "address": {
+            "type": "string",
+            "description": "The client address. For example: `הרצל 5`.",
+            "maxLength": 10000
+          },
+          "city": {
+            "type": "string",
+            "description": "The client city. For example: `תל אביב`.",
+            "maxLength": 10000
+          },
+          "zip": {
+            "type": "string",
+            "description": "The client ZIP code. For example: `5555`.",
+            "maxLength": 10000
+          },
+          "country": {
+            "type": "string",
+            "description": "2-letter ISO 3166-1 alpha-2 country code. Defaults to `IL` (Israel). Use the [Get Supported Countries](#operation/getSupportedCountries) endpoint to retrieve the full list. For example: `IL`.",
+            "maxLength": 10000
+          },
+          "category": {
+            "type": "integer",
+            "description": "The business category code this client is related to. Use the [Get Supported Business Categories](#operation/getSupportedBusinessCategories) endpoint to retrieve the full list. For example: 4."
+          },
+          "subCategory": {
+            "type": "integer",
+            "description": "The business sub-category code this client is related to. Use the [Get Supported Business Categories](#operation/getSupportedBusinessCategories) endpoint to retrieve the full list. For example: 406."
+          },
+          "phone": {
+            "type": "string",
+            "description": "The client phone number. For example: `0505555555`.",
+            "maxLength": 10000
+          },
+          "fax": {
+            "type": "string",
+            "description": "The client fax number. For example: `033333333`.",
+            "maxLength": 10000
+          },
+          "mobile": {
+            "type": "string",
+            "description": "The client mobile number. For example: `033333333`.",
+            "maxLength": 10000
+          },
+          "remarks": {
+            "type": "string",
+            "description": "Client remarks for internal use. For example: `לקוח קבוע`.",
+            "maxLength": 10000
+          },
+          "contactPerson": {
+            "type": "string",
+            "description": "The client contact person name. For example: `יעקב`.",
+            "maxLength": 10000
+          },
+          "emails": {
+            "type": "array",
+            "description": "The client email addresses (up to 5). For example: `[\"test@test-yakov.com\"]`.",
+            "maxItems": 5,
+            "items": {
+              "type": "string",
+              "maxLength": 10000
+            }
+          },
+          "labels": {
+            "type": "array",
+            "description": "Label IDs to assign to the client (up to 3). For example: `[\"3777a6ef-fac3-4b2e-a296-238d5dcd6450\"]`.",
+            "maxItems": 3,
+            "items": {
+              "type": "string",
+              "maxLength": 10000
+            }
+          },
+          "balance": {
+            "type": "number",
+            "description": "Opening balance for the client. This value is primarily computed by the system from the client's documents and payments; provide it only to set an initial balance. For example: 0."
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "2e74745a90e34b7ed7f88a6e86a62ec30de8d6afad46b015195a017b5f2e097f"
+    },
+    {
+      "id": "getClient",
+      "method": "GET",
+      "path": "/clients/{id}",
+      "title": "Get Client",
+      "group": "Clients",
+      "description": "Retrieve a single client by its ID.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "cc66b4b2f997cea15b7517a49bb8b97e09b8110b550f11c8e6c9d6fd7b321f66"
+    },
+    {
+      "id": "updateClient",
+      "method": "PUT",
+      "path": "/clients/{id}",
+      "title": "Update Client",
+      "group": "Clients",
+      "description": "Update an existing client by its ID. Only the fields you send are applied.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "change",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "body": {
+        "type": "object",
+        "description": "Fields to update on the client. All fields are optional — only the fields you send are applied.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The client name. For example: `יעקב יעקבי`.",
+            "maxLength": 10000
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Whether the client is currently active. For example: `true`."
+          },
+          "send": {
+            "type": "boolean",
+            "description": "Whether emails are automatically sent to the client when assigning them to a document. For example: `true`."
+          },
+          "department": {
+            "type": "string",
+            "description": "The client department. For example: `מחלקת כספים`.",
+            "maxLength": 10000
+          },
+          "taxId": {
+            "type": "string",
+            "description": "The client tax ID. For example: `999152580`.",
+            "maxLength": 10000
+          },
+          "accountingKey": {
+            "type": "string",
+            "description": "The client accounting key. For example: `b6230777`.",
+            "maxLength": 10000
+          },
+          "paymentTerms": {
+            "type": "integer",
+            "description": "Payment term.\n\n| Code | Term |\n|------|------|\n| -1 | מיידי |\n| 0 | שוטף |\n| 10 | שוטף +10 |\n| 15 | שוטף +15 |\n| 30 | שוטף +30 |\n| 45 | שוטף +45 |\n| 60 | שוטף +60 |\n| 75 | שוטף +75 |\n| 90 | שוטף +90 |\n| 120 | שוטף +120 |"
+          },
+          "bankName": {
+            "type": "string",
+            "description": "The client bank name. For example: `12`.",
+            "maxLength": 10000
+          },
+          "bankBranch": {
+            "type": "string",
+            "description": "The client bank branch number. For example: `450`.",
+            "maxLength": 10000
+          },
+          "bankAccount": {
+            "type": "string",
+            "description": "The client bank account number. For example: `1111`.",
+            "maxLength": 10000
+          },
+          "address": {
+            "type": "string",
+            "description": "The client address. For example: `הרצל 5`.",
+            "maxLength": 10000
+          },
+          "city": {
+            "type": "string",
+            "description": "The client city. For example: `ראשון לציון`.",
+            "maxLength": 10000
+          },
+          "zip": {
+            "type": "string",
+            "description": "The client ZIP code. For example: `4444`.",
+            "maxLength": 10000
+          },
+          "country": {
+            "type": "string",
+            "description": "2-letter ISO 3166-1 alpha-2 country code. Use the [Get Supported Countries](#operation/getSupportedCountries) endpoint to retrieve the full list. For example: `IL`.",
+            "maxLength": 10000
+          },
+          "category": {
+            "type": "integer",
+            "description": "The business category code this client is related to. Use the [Get Supported Business Categories](#operation/getSupportedBusinessCategories) endpoint to retrieve the full list. For example: 4."
+          },
+          "subCategory": {
+            "type": "integer",
+            "description": "The business sub-category code this client is related to. Use the [Get Supported Business Categories](#operation/getSupportedBusinessCategories) endpoint to retrieve the full list. For example: 406."
+          },
+          "phone": {
+            "type": "string",
+            "description": "The client phone number. For example: `0505555555`.",
+            "maxLength": 10000
+          },
+          "fax": {
+            "type": "string",
+            "description": "The client fax number. For example: `033333333`.",
+            "maxLength": 10000
+          },
+          "mobile": {
+            "type": "string",
+            "description": "The client mobile number. For example: `033333333`.",
+            "maxLength": 10000
+          },
+          "remarks": {
+            "type": "string",
+            "description": "Client remarks for internal use. For example: `לקוח קבוע`.",
+            "maxLength": 10000
+          },
+          "contactPerson": {
+            "type": "string",
+            "description": "The client contact person name. For example: `יעקב`.",
+            "maxLength": 10000
+          },
+          "emails": {
+            "type": "array",
+            "description": "The client email addresses (up to 5). For example: `[\"test@test-yakov.com\"]`.",
+            "maxItems": 5,
+            "items": {
+              "type": "string",
+              "maxLength": 10000
+            }
+          },
+          "labels": {
+            "type": "array",
+            "description": "Label IDs to assign to the client (up to 3). For example: `[\"3777a6ef-fac3-4b2e-a296-238d5dcd6450\"]`.",
+            "maxItems": 3,
+            "items": {
+              "type": "string",
+              "maxLength": 10000
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "0f7c29d632178bec89d93db95178bb62678983e1d93c6541bc4c4a925766985e"
+    },
+    {
+      "id": "deleteClient",
+      "method": "DELETE",
+      "path": "/clients/{id}",
+      "title": "Delete Client",
+      "group": "Clients",
+      "description": "Delete a client by its ID. A client can be deleted only when it is inactive and has no associated documents, no active payment tokens, and no recurring charges. The response body is empty.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "destructive",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "34bb4ec95a4b1f32cb70f462f71ccf63302b9e5394b77e7d8ea05a3529c2af8e"
+    },
+    {
+      "id": "searchClients",
+      "method": "POST",
+      "path": "/clients/search",
+      "title": "Search Clients",
+      "group": "Clients",
+      "description": "Search the current business's clients with optional filters. Results are paginated.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "body": {
+        "type": "object",
+        "description": "Filters for searching clients. All fields are optional; an empty body returns all clients.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Filter by client name. For example: `יעקב`.",
+            "maxLength": 10000
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Filter by active state. When omitted, both active and inactive clients are returned. For example: `true`."
+          },
+          "email": {
+            "type": "string",
+            "description": "Filter by client email address. For example: `test@test-yakov.com`.",
+            "maxLength": 10000
+          },
+          "contactPerson": {
+            "type": "string",
+            "description": "Filter by contact person name. For example: `יעקב`.",
+            "maxLength": 10000
+          },
+          "labels": {
+            "type": "array",
+            "description": "Filter by label IDs. For example: `[\"3777a6ef-fac3-4b2e-a296-238d5dcd6450\"]`.",
+            "items": {
+              "type": "string",
+              "maxLength": 10000
+            },
+            "maxItems": 200
+          },
+          "page": {
+            "type": "integer",
+            "description": "Page number to retrieve (1-based). Defaults to 1."
+          },
+          "pageSize": {
+            "type": "integer",
+            "description": "Number of results per page. Defaults to 25."
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "48c94f35b8fa30551a5122fe3b49b9cb2e83c0abea3040d17de79d6d91361a06"
+    },
+    {
+      "id": "associateClientDocuments",
+      "method": "POST",
+      "path": "/clients/{id}/assoc",
+      "title": "Associate Documents to a Client",
+      "group": "Clients",
+      "description": "Associate one or more existing documents with a client. Used when a document was issued to a one-time client and needs to be associated with an existing client record.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "change",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "body": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The ID of the client to associate the documents with. For example: `b0077e19-977b-4389-a2e1-f84fa0527d23`.",
+            "format": "uuid",
+            "maxLength": 10000
+          },
+          "ids": {
+            "type": "array",
+            "description": "IDs of the existing documents to associate with the client. For example: `[\"85d1f759-88bb-4617-b4ae-d138582370b8\"]`.",
+            "items": {
+              "type": "string",
+              "maxLength": 10000
+            },
+            "maxItems": 200
+          }
+        },
+        "required": [
+          "id",
+          "ids"
+        ],
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "bd5aff5f24e4a0e081be33a93b45385bd5cdcfbc225f3da7c387d3f296374192"
+    },
+    {
+      "id": "updateClientBalance",
+      "method": "POST",
+      "path": "/clients/{id}/balance",
+      "title": "Update Client Balance",
+      "group": "Clients",
+      "description": "Update a client's balance. Recalculates the client's payment amount so that the balance equals the requested value; send `0` to reset it to zero. The response body is empty.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "change",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "body": {
+        "type": "object",
+        "properties": {
+          "balance": {
+            "type": "number",
+            "description": "The client's new balance. The endpoint recalculates the client's payment amount so the balance equals this value. Send `0` to reset the balance. For example: 30."
+          }
+        },
+        "required": [
+          "balance"
+        ],
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "ce981f0fb75f9395662aebec876c5fe1ef30ab334162da4756912cc44cf596f4"
+    },
+    {
+      "id": "mergeClients",
+      "method": "POST",
+      "path": "/clients/{id}/merge",
+      "title": "Merge Clients",
+      "group": "Clients",
+      "description": "Merge one client into another. The inactive client identified by `mergeId` (in the body) is merged into the active client identified by `id` (in the path): the inactive client's documents and balance are transferred to the active client, and the inactive client is then deleted. One of the two clients must be inactive. The response body is empty.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "destructive",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "body": {
+        "type": "object",
+        "properties": {
+          "mergeId": {
+            "type": "string",
+            "description": "The ID of the inactive client to merge from. Its documents and balance are transferred to the active client (the path `id`), and the inactive client is then deleted. For example: `ba76e441-9266-40e5-9857-f0ca646f6bc1`.",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "mergeId"
+        ],
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "1ee59ee4c785d6dfe8126783211545571faf402b9361f7fc6bc2ec6f102c858d"
+    },
+    {
+      "id": "getPaymentForm",
+      "method": "POST",
+      "path": "/payments/form",
+      "title": "Get Payment Form",
+      "group": "Payments",
+      "description": "Create a payment request and return a payment form URL you can present to the customer — as an iframe or a redirect — to collect a payment. Once the customer pays, the configured document is created automatically.\n\nThe `group` field is required only when using the Digital Payments (Grow) plugin. If no `pluginId` is provided, the business's default payment plugin is used.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "payment_request",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "body": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Description of the document created for this payment. For example: `Payment for order #1024`.",
+            "maxLength": 10000
+          },
+          "type": {
+            "type": "integer",
+            "description": "Document type that can be created through a payment.\n\n| Code | Type |\n|------|------|\n| 320 | חשבונית מס / קבלה |\n| 400 | קבלה |\n| 405 | קבלה על תרומה |\n| 600 | קבלת פיקדון |"
+          },
+          "amount": {
+            "type": "number",
+            "description": "The amount the customer needs to pay. Must be greater than 0. For example: 20."
+          },
+          "currency": {
+            "type": "string",
+            "description": "3-letter ISO currency code supported for payments.\n\n| Code | Name |\n|------|------|\n| ILS | שקל |\n| USD | דולר |\n| EUR | אירו |\n| GBP | ליש״ט |",
+            "maxLength": 10000
+          },
+          "vatType": {
+            "type": "integer",
+            "description": "Document-level VAT type.\n\n| Value | Meaning |\n|-------|---------|\n| 0 | Default (based on business type) |\n| 1 | Exempt (VAT-free) |\n| 2 | Mixed (contains both exempt and taxable rows) |"
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "he",
+              "en"
+            ],
+            "description": "Content language",
+            "maxLength": 10000
+          },
+          "maxPayments": {
+            "type": "integer",
+            "description": "Number of credit-card installments, between 1 and 36. Defaults to 1."
+          },
+          "pluginId": {
+            "type": "string",
+            "description": "The clearing plugin ID to use. If omitted, the business's default payment plugin is used. For example: `7944827a-c664-11e4-8231-080027271115`.",
+            "maxLength": 10000
+          },
+          "group": {
+            "type": "integer",
+            "description": "Payment method offered on the payment form.\n\n| Code | Group |\n|------|-------|\n| 100 | Credit Card |\n| 110 | PayPal |\n| 120 | Bit |\n| 150 | Google Pay |\n| 160 | Apple Pay |"
+          },
+          "client": {
+            "type": "object",
+            "description": "Client information",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Existing client ID. For example: `7944827a-c664-11e4-8231-080027271114`.",
+                "maxLength": 10000
+              },
+              "name": {
+                "type": "string",
+                "description": "Client name. For example: `John Doe`.",
+                "maxLength": 10000
+              },
+              "emails": {
+                "type": "array",
+                "description": "Client emails — payment and document links are sent to these addresses. For example: `[\"email1@example.com\", \"email2@example.com\"]`.",
+                "items": {
+                  "type": "string",
+                  "maxLength": 10000
+                },
+                "maxItems": 200
+              },
+              "taxId": {
+                "type": "string",
+                "description": "Client tax ID. For example: `0123456789`.",
+                "maxLength": 10000
+              },
+              "address": {
+                "type": "string",
+                "description": "Client address. For example: `1 Luria St`.",
+                "maxLength": 10000
+              },
+              "city": {
+                "type": "string",
+                "description": "Client city. For example: `Tel Aviv`.",
+                "maxLength": 10000
+              },
+              "zip": {
+                "type": "string",
+                "description": "Client zip code. For example: `1234567`.",
+                "maxLength": 10000
+              },
+              "country": {
+                "type": "string",
+                "description": "Client 2-letter ISO country code. Defaults to `IL`. For example: `IL`.",
+                "default": "IL",
+                "maxLength": 10000
+              },
+              "phone": {
+                "type": "string",
+                "description": "Client phone. For example: `+972-54-1234567`.",
+                "maxLength": 10000
+              },
+              "fax": {
+                "type": "string",
+                "description": "Client fax. For example: `+972-54-1234567`.",
+                "maxLength": 10000
+              },
+              "mobile": {
+                "type": "string",
+                "description": "Client mobile. For example: `+972-54-1234567`.",
+                "maxLength": 10000
+              },
+              "add": {
+                "type": "boolean",
+                "description": "Add a temporary client to the clients list. Defaults to `false`.",
+                "default": false
+              }
+            },
+            "additionalProperties": false
+          },
+          "income": {
+            "type": "array",
+            "description": "Income (line-item) rows. If no rows are provided, a single row is created from the request's `description` and `amount`.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "catalogNum": {
+                  "type": "string",
+                  "description": "Item catalog number. For example: `MXDFSDD`.",
+                  "maxLength": 10000
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Item description. For example: `Item description`.",
+                  "maxLength": 10000
+                },
+                "quantity": {
+                  "type": "number",
+                  "description": "Item quantity. For example: 1."
+                },
+                "price": {
+                  "type": "number",
+                  "description": "Item price. For example: 20."
+                },
+                "currency": {
+                  "type": "string",
+                  "description": "3-letter ISO currency code.\n\n| Code | Name |\n|------|------|\n| ILS | שקל |\n| USD | דולר |\n| EUR | אירו |\n| GBP | ליש״ט |\n| JPY | יין יפני |\n| CHF | פרנק שוויצרי |\n| CNY | יואן סיני |\n| AUD | דולר אוסטרלי |\n| CAD | דולר קנדי |\n| RUB | רובל |\n| BRL | ריאל ברזילאי |\n| HKD | דולר הונג קונגי |\n| SGD | דולר סינגפורי |\n| THB | באט תאילנדי |\n| MXN | פזו מקסיקני |\n| TRY | לירה טורקית |\n| NZD | דולר ניו זילנדי |\n| SEK | כתר שבדי |\n| NOK | כתר נורבגי |\n| DKK | כתר דני |\n| KRW | וון דרום קוריאני |\n| INR | רופי הודי |\n| IDR | רופי אינדונזי |\n| PLN | זלוטי |\n| RON | לאו רומני |\n| ZAR | ראנד דרא״פ |\n| HRK | קונה |",
+                  "maxLength": 10000
+                },
+                "vatType": {
+                  "type": "integer",
+                  "description": "Item VAT type calculation.\n\n| Value | Meaning |\n|-------|---------|\n| 0 | Default (VAT added based on business type) |\n| 1 | Included (VAT included in price) |\n| 2 | Exempt (VAT-free) |"
+                }
+              },
+              "required": [
+                "description",
+                "quantity",
+                "price",
+                "currency",
+                "vatType"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 200
+          },
+          "remarks": {
+            "type": "string",
+            "description": "Remarks shown on the created document. For example: `Some remarks`.",
+            "maxLength": 10000
+          },
+          "successUrl": {
+            "type": "string",
+            "description": "HTTPS URL the customer is redirected to after a successful payment. For example: `https://example.com/success`.",
+            "maxLength": 10000
+          },
+          "failureUrl": {
+            "type": "string",
+            "description": "HTTPS URL the customer is redirected to after a failed payment. For example: `https://example.com/failure`.",
+            "maxLength": 10000
+          },
+          "notifyUrl": {
+            "type": "string",
+            "description": "HTTPS URL notified (POST) once the payment succeeds and the document is created. For example: `https://example.com/notify`.",
+            "maxLength": 10000
+          },
+          "custom": {
+            "type": "string",
+            "description": "Custom data echoed back to your success / failure / notify URLs, such as an internal order ID. For example: `order-1024`.",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "description",
+          "type",
+          "amount",
+          "currency",
+          "vatType",
+          "lang",
+          "client"
+        ],
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "6a10c93eb4f0180e27d933a71dde26248a4c6d3867b652c764427fca30e2b2f9"
+    },
+    {
+      "id": "searchCreditCardTokens",
+      "method": "POST",
+      "path": "/payments/tokens/search",
+      "title": "Search Credit Card Tokens",
+      "group": "Payments",
+      "description": "Search the saved credit-card tokens of the current business using any combination of the filters in the request body. All filters are optional; omitting the body returns the most recent tokens. Results are paginated.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "body": {
+        "type": "object",
+        "description": "Filters for the credit-card token search. All fields are optional.",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "Page number to retrieve. Defaults to 1.",
+            "default": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "description": "Number of results per page. Defaults to 25.",
+            "default": 25
+          },
+          "paymentNumber": {
+            "type": "string",
+            "description": "Filter by the card's last 4 digits. For example: `0000`.",
+            "maxLength": 10000
+          },
+          "cardHolder": {
+            "type": "string",
+            "description": "Filter by card holder name. For example: `John Doe`.",
+            "maxLength": 10000
+          },
+          "externalKey": {
+            "type": "string",
+            "description": "Filter by the client ID the token is associated with. For example: `b0077e19-977b-4389-a2e1-f84fa0527d23`.",
+            "maxLength": 10000
+          },
+          "cardType": {
+            "type": "array",
+            "description": "Filter by credit card brand(s).\n\n| Code | Brand |\n|------|-------|\n| 0 | Unknown |\n| 1 | Isracard |\n| 2 | Visa |\n| 3 | Mastercard |\n| 4 | American Express |\n| 5 | Diners |",
+            "items": {
+              "type": "integer",
+              "description": "Credit card brand.\n\n| Code | Brand |\n|------|-------|\n| 0 | Unknown |\n| 1 | Isracard |\n| 2 | Visa |\n| 3 | Mastercard |\n| 4 | American Express |\n| 5 | Diners |"
+            },
+            "maxItems": 200
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyRequired": false,
+      "fingerprint": "5705e3203411a2ccd16ba19c105e99c8b165145befb1186dc8dce694891e0485"
+    },
+    {
+      "id": "chargeCreditCardToken",
+      "method": "POST",
+      "path": "/payments/tokens/{id}/charge",
+      "title": "Charge Credit Card Token",
+      "group": "Payments",
+      "description": "Charge a saved credit-card token. A document of the requested type is created and returned once the charge succeeds.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "charge",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "body": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Description of the document created for this charge. For example: `Transaction description`.",
+            "maxLength": 10000
+          },
+          "type": {
+            "type": "integer",
+            "description": "Document type that can be created through a payment.\n\n| Code | Type |\n|------|------|\n| 320 | חשבונית מס / קבלה |\n| 400 | קבלה |\n| 405 | קבלה על תרומה |\n| 600 | קבלת פיקדון |"
+          },
+          "amount": {
+            "type": "number",
+            "description": "The amount to charge. Must be greater than 0. For example: 20."
+          },
+          "currency": {
+            "type": "string",
+            "description": "3-letter ISO currency code supported for payments.\n\n| Code | Name |\n|------|------|\n| ILS | שקל |\n| USD | דולר |\n| EUR | אירו |\n| GBP | ליש״ט |",
+            "maxLength": 10000
+          },
+          "vatType": {
+            "type": "integer",
+            "description": "Document-level VAT type.\n\n| Value | Meaning |\n|-------|---------|\n| 0 | Default (based on business type) |\n| 1 | Exempt (VAT-free) |\n| 2 | Mixed (contains both exempt and taxable rows) |"
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "he",
+              "en"
+            ],
+            "description": "Content language",
+            "maxLength": 10000
+          },
+          "maxPayments": {
+            "type": "integer",
+            "description": "Number of credit-card installments, between 1 and 36. Defaults to 1."
+          },
+          "income": {
+            "type": "array",
+            "description": "Income (line-item) rows. If no rows are provided, a single row is created from the request's `description` and `amount`.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "catalogNum": {
+                  "type": "string",
+                  "description": "Item catalog number. For example: `MXDFSDD`.",
+                  "maxLength": 10000
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Item description. For example: `Item description`.",
+                  "maxLength": 10000
+                },
+                "quantity": {
+                  "type": "number",
+                  "description": "Item quantity. For example: 1."
+                },
+                "price": {
+                  "type": "number",
+                  "description": "Item price. For example: 20."
+                },
+                "currency": {
+                  "type": "string",
+                  "description": "3-letter ISO currency code.\n\n| Code | Name |\n|------|------|\n| ILS | שקל |\n| USD | דולר |\n| EUR | אירו |\n| GBP | ליש״ט |\n| JPY | יין יפני |\n| CHF | פרנק שוויצרי |\n| CNY | יואן סיני |\n| AUD | דולר אוסטרלי |\n| CAD | דולר קנדי |\n| RUB | רובל |\n| BRL | ריאל ברזילאי |\n| HKD | דולר הונג קונגי |\n| SGD | דולר סינגפורי |\n| THB | באט תאילנדי |\n| MXN | פזו מקסיקני |\n| TRY | לירה טורקית |\n| NZD | דולר ניו זילנדי |\n| SEK | כתר שבדי |\n| NOK | כתר נורבגי |\n| DKK | כתר דני |\n| KRW | וון דרום קוריאני |\n| INR | רופי הודי |\n| IDR | רופי אינדונזי |\n| PLN | זלוטי |\n| RON | לאו רומני |\n| ZAR | ראנד דרא״פ |\n| HRK | קונה |",
+                  "maxLength": 10000
+                },
+                "vatType": {
+                  "type": "integer",
+                  "description": "Item VAT type calculation.\n\n| Value | Meaning |\n|-------|---------|\n| 0 | Default (VAT added based on business type) |\n| 1 | Included (VAT included in price) |\n| 2 | Exempt (VAT-free) |"
+                }
+              },
+              "required": [
+                "description",
+                "quantity",
+                "price",
+                "currency",
+                "vatType"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 200
+          },
+          "remarks": {
+            "type": "string",
+            "description": "Remarks shown on the created document. For example: `Some remarks`.",
+            "maxLength": 10000
+          },
+          "notifyUrl": {
+            "type": "string",
+            "description": "HTTPS URL notified (POST) once the payment succeeds and the document is created. For example: `https://example.com/notify`.",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "type",
+          "amount",
+          "currency",
+          "vatType",
+          "lang"
+        ],
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "f78a8c78eae5bcf24b72757860f8f47bb67c36b81b6680ffbb7046c1cb38eebb"
+    },
+    {
+      "id": "addSupplier",
+      "method": "POST",
+      "path": "/suppliers",
+      "title": "Add Supplier",
+      "group": "Suppliers",
+      "description": "Create a new supplier for the current business.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "change",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "body": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The supplier name. For example: `ישראל ישראלי`.",
+            "maxLength": 10000
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Is the supplier currently active or not. Defaults to `true`."
+          },
+          "department": {
+            "type": "string",
+            "description": "The supplier department. For example: `Sales`.",
+            "maxLength": 10000
+          },
+          "taxId": {
+            "type": "string",
+            "description": "The supplier tax ID. For example: `999317746`.",
+            "maxLength": 10000
+          },
+          "accountingKey": {
+            "type": "string",
+            "description": "The supplier accounting key. For example: `31653639`.",
+            "maxLength": 10000
+          },
+          "paymentTerms": {
+            "type": "integer",
+            "description": "Payment term.\n\n| Code | Term |\n|------|------|\n| -1 | מיידי |\n| 0 | שוטף |\n| 10 | שוטף +10 |\n| 15 | שוטף +15 |\n| 30 | שוטף +30 |\n| 45 | שוטף +45 |\n| 60 | שוטף +60 |\n| 75 | שוטף +75 |\n| 90 | שוטף +90 |\n| 120 | שוטף +120 |"
+          },
+          "bankName": {
+            "type": "string",
+            "description": "The supplier bank name. For example: `פועלים`.",
+            "maxLength": 10000
+          },
+          "bankBranch": {
+            "type": "string",
+            "description": "The supplier bank branch number. For example: `123`.",
+            "maxLength": 10000
+          },
+          "bankAccount": {
+            "type": "string",
+            "description": "The supplier bank account number. For example: `123456`.",
+            "maxLength": 10000
+          },
+          "address": {
+            "type": "string",
+            "description": "The supplier address. For example: `הרצל 12`.",
+            "maxLength": 10000
+          },
+          "city": {
+            "type": "string",
+            "description": "The supplier city. For example: `תל אביב`.",
+            "maxLength": 10000
+          },
+          "zip": {
+            "type": "string",
+            "description": "The supplier ZIP code. For example: `6688320`.",
+            "maxLength": 10000
+          },
+          "country": {
+            "type": "string",
+            "description": "2-letter ISO 3166-1 alpha-2 country code. Defaults to `IL` (Israel). Use the [Get Supported Countries](#operation/getSupportedCountries) endpoint to retrieve the full list. For example: `IL`.",
+            "maxLength": 10000
+          },
+          "phone": {
+            "type": "string",
+            "description": "The supplier phone number. For example: `0505555555`.",
+            "maxLength": 10000
+          },
+          "fax": {
+            "type": "string",
+            "description": "The supplier fax number. For example: `0504444444`.",
+            "maxLength": 10000
+          },
+          "mobile": {
+            "type": "string",
+            "description": "The supplier mobile number. For example: `0504444444`.",
+            "maxLength": 10000
+          },
+          "remarks": {
+            "type": "string",
+            "description": "Supplier remarks for internal use. For example: `ספק קבוע`.",
+            "maxLength": 10000
+          },
+          "contactPerson": {
+            "type": "string",
+            "description": "The supplier contact person name. For example: `ישראל ישראלי`.",
+            "maxLength": 10000
+          },
+          "emails": {
+            "type": "array",
+            "description": "The supplier email addresses (up to 3). For example: `[\"test_test@test.com\"]`.",
+            "maxItems": 3,
+            "items": {
+              "type": "string",
+              "maxLength": 10000
+            }
+          },
+          "labels": {
+            "type": "array",
+            "description": "Label names to assign to the supplier (up to 3). For example: `[\"אינסטלטורים\"]`.",
+            "maxItems": 3,
+            "items": {
+              "type": "string",
+              "maxLength": 10000
+            }
+          },
+          "balanceAmount": {
+            "type": "number",
+            "description": "Opening balance for the supplier. This value is primarily computed by the system from the supplier's documents and payments; provide it only to set an initial balance. For example: 0."
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "aa6213ee0fcca4f602638214051411a8f598ea9039cff74ce8496e85764eed3c"
+    },
+    {
+      "id": "getSupplier",
+      "method": "GET",
+      "path": "/suppliers/{id}",
+      "title": "Get Supplier",
+      "group": "Suppliers",
+      "description": "Retrieve a single supplier by its ID.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "ae1ce6c05dfbb5e438f1787970af0e464550d791f829250ac474592fd680ab26"
+    },
+    {
+      "id": "updateSupplier",
+      "method": "PUT",
+      "path": "/suppliers/{id}",
+      "title": "Update Supplier",
+      "group": "Suppliers",
+      "description": "Update an existing supplier by its ID. This is a partial update: include only the fields you want to change — any field you omit keeps its current value.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "change",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "body": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The supplier name. For example: `ישראל ישראלי`.",
+            "maxLength": 10000
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Is the supplier currently active or not. For example: `true`."
+          },
+          "department": {
+            "type": "string",
+            "description": "The supplier department. For example: `Sales`.",
+            "maxLength": 10000
+          },
+          "taxId": {
+            "type": "string",
+            "description": "The supplier tax ID. For example: `999317746`.",
+            "maxLength": 10000
+          },
+          "accountingKey": {
+            "type": "string",
+            "description": "The supplier accounting key. For example: `31653639`.",
+            "maxLength": 10000
+          },
+          "paymentTerms": {
+            "type": "integer",
+            "description": "Payment term.\n\n| Code | Term |\n|------|------|\n| -1 | מיידי |\n| 0 | שוטף |\n| 10 | שוטף +10 |\n| 15 | שוטף +15 |\n| 30 | שוטף +30 |\n| 45 | שוטף +45 |\n| 60 | שוטף +60 |\n| 75 | שוטף +75 |\n| 90 | שוטף +90 |\n| 120 | שוטף +120 |"
+          },
+          "bankName": {
+            "type": "string",
+            "description": "The supplier bank name. For example: `פועלים`.",
+            "maxLength": 10000
+          },
+          "bankBranch": {
+            "type": "string",
+            "description": "The supplier bank branch number. For example: `123`.",
+            "maxLength": 10000
+          },
+          "bankAccount": {
+            "type": "string",
+            "description": "The supplier bank account number. For example: `123456`.",
+            "maxLength": 10000
+          },
+          "address": {
+            "type": "string",
+            "description": "The supplier address. For example: `הרצל 12`.",
+            "maxLength": 10000
+          },
+          "city": {
+            "type": "string",
+            "description": "The supplier city. For example: `תל אביב`.",
+            "maxLength": 10000
+          },
+          "zip": {
+            "type": "string",
+            "description": "The supplier ZIP code. For example: `6688320`.",
+            "maxLength": 10000
+          },
+          "country": {
+            "type": "string",
+            "description": "2-letter ISO 3166-1 alpha-2 country code. Defaults to `IL` (Israel). Use the [Get Supported Countries](#operation/getSupportedCountries) endpoint to retrieve the full list. For example: `IL`.",
+            "maxLength": 10000
+          },
+          "phone": {
+            "type": "string",
+            "description": "The supplier phone number. For example: `0505555555`.",
+            "maxLength": 10000
+          },
+          "fax": {
+            "type": "string",
+            "description": "The supplier fax number. For example: `0504444444`.",
+            "maxLength": 10000
+          },
+          "mobile": {
+            "type": "string",
+            "description": "The supplier mobile number. For example: `0504444444`.",
+            "maxLength": 10000
+          },
+          "remarks": {
+            "type": "string",
+            "description": "Supplier remarks for internal use. For example: `ספק קבוע`.",
+            "maxLength": 10000
+          },
+          "contactPerson": {
+            "type": "string",
+            "description": "The supplier contact person name. For example: `ישראל ישראלי`.",
+            "maxLength": 10000
+          },
+          "emails": {
+            "type": "array",
+            "description": "The supplier email addresses (up to 3). For example: `[\"test_test@test.com\"]`.",
+            "maxItems": 3,
+            "items": {
+              "type": "string",
+              "maxLength": 10000
+            }
+          },
+          "labels": {
+            "type": "array",
+            "description": "Label names to assign to the supplier (up to 3). For example: `[\"אינסטלטורים\"]`.",
+            "maxItems": 3,
+            "items": {
+              "type": "string",
+              "maxLength": 10000
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "55c88d9c77ea04a276a46c9dece20d6feeba1b4396c913952ab7033805b26c7d"
+    },
+    {
+      "id": "deleteSupplier",
+      "method": "DELETE",
+      "path": "/suppliers/{id}",
+      "title": "Delete Supplier",
+      "group": "Suppliers",
+      "description": "Delete a supplier by its ID. The response is the deleted supplier.\n\n**Note:** The supplier must be **inactive** (`active: false`) before it can be deleted — deactivate it first via [Update Supplier](#operation/updateSupplier). A supplier that has linked expenses cannot be deleted.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "destructive",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "6a5f8e4bad08928365b897129295435aa08b4dd9e46b8d1f9ac78d679657fde5"
+    },
+    {
+      "id": "searchSuppliers",
+      "method": "POST",
+      "path": "/suppliers/search",
+      "title": "Search Suppliers",
+      "group": "Suppliers",
+      "description": "Search the suppliers of the current business using any combination of the filters in the request body. All filters are optional; omitting the body returns the most recent suppliers. Results are paginated.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "body": {
+        "type": "object",
+        "description": "Filters for the supplier search. All fields are optional.",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "Page number to retrieve. Defaults to 1.",
+            "default": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "description": "Number of results per page. Defaults to 25.",
+            "default": 25
+          },
+          "name": {
+            "type": "string",
+            "description": "Filter by supplier name. For example: `ישראל ישראלי`.",
+            "maxLength": 10000
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Filter by active state. Omit to return both active and inactive suppliers. For example: `true`."
+          },
+          "email": {
+            "type": "string",
+            "description": "Filter by supplier email. For example: `test_test@test.com`.",
+            "maxLength": 10000
+          },
+          "contactPerson": {
+            "type": "string",
+            "description": "Filter by supplier contact person. For example: `ישראל ישראלי`.",
+            "maxLength": 10000
+          },
+          "taxId": {
+            "type": "string",
+            "description": "Filter by supplier tax ID. For example: `999317746`.",
+            "maxLength": 10000
+          },
+          "labels": {
+            "type": "array",
+            "description": "Filter by label IDs. For example: `[\"775c188f-33a1-4d39-a5f2-cf7b82dd5bd5\"]`.",
+            "items": {
+              "type": "string",
+              "maxLength": 10000
+            },
+            "maxItems": 200
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyRequired": false,
+      "fingerprint": "3b9aa6c54d8bbaae6f72834c0eef55c747acfc07e229728761b63c0fdba30da3"
+    },
+    {
+      "id": "mergeSuppliers",
+      "method": "POST",
+      "path": "/suppliers/{id}/merge",
+      "title": "Merge Suppliers",
+      "group": "Suppliers",
+      "description": "Merge one supplier into another. The supplier identified by the path `id` is the **target** that data is merged into; the `mergeId` in the request body is the **source** supplier that data is merged from.\n\n**Note:** One of the two suppliers must be inactive — specifically the source (`mergeId`). After the merge the source supplier is deleted and all of its documents are reassigned to the target supplier. The response body is an empty object.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "destructive",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "body": {
+        "type": "object",
+        "properties": {
+          "mergeId": {
+            "type": "string",
+            "description": "The ID of the supplier to merge data from. Must be an inactive supplier — after the merge it is deleted and all of its documents are reassigned to the target supplier. For example: `6e8f79d3-ed3e-4940-ad95-94c5416e9b19`.",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "mergeId"
+        ],
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "f07bcf144abc38d1a404bf8501c0ecaf480ee46ce4d20677e6b1a48ecffcf20a"
+    },
+    {
+      "id": "addExpense",
+      "method": "POST",
+      "path": "/expenses",
+      "title": "Add Expense",
+      "group": "Expenses",
+      "description": "Add an expense to the current business.\n\nThe expense is generated from the business and document default settings, overridden by any attributes provided in the request.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "change",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "body": {
+        "type": "object",
+        "properties": {
+          "documentType": {
+            "type": "integer",
+            "description": "Expense document type code.\n\n| Code | Type |\n|------|------|\n| 20 | חשבון / אישור תשלום |\n| 305 | חשבונית מס |\n| 320 | חשבונית מס / קבלה |\n| 330 | חשבונית זיכוי |\n| 400 | קבלה |\n| 405 | קבלה על תרומה |"
+          },
+          "number": {
+            "type": "string",
+            "description": "The supplier's document number. For example: `100`.",
+            "maxLength": 10000
+          },
+          "date": {
+            "type": "string",
+            "description": "Date of the expense, formatted YYYY-MM-DD. Must be 2010-01-01 or later and not in the future. For example: `2026-05-06`.",
+            "maxLength": 10000
+          },
+          "reportingDate": {
+            "type": "string",
+            "description": "VAT reporting date. Must be the first day of the month, formatted YYYY-MM-01. For example: `2026-05-01`.",
+            "maxLength": 10000
+          },
+          "paymentType": {
+            "type": "integer",
+            "description": "Expense payment method.\n\n| Code | Method |\n|------|--------|\n| -1 | לא שולם |\n| 1 | מזומן |\n| 2 | צ׳ק |\n| 3 | כרטיס אשראי |\n| 4 | העברה בנקאית |\n| 5 | פייפאל |\n| 10 | אפליקציית תשלום |\n| 11 | אחר |"
+          },
+          "currency": {
+            "type": "string",
+            "description": "3-letter ISO currency code.\n\n| Code | Name |\n|------|------|\n| ILS | שקל |\n| USD | דולר |\n| EUR | אירו |\n| GBP | ליש״ט |\n| JPY | יין יפני |\n| CHF | פרנק שוויצרי |\n| CNY | יואן סיני |\n| AUD | דולר אוסטרלי |\n| CAD | דולר קנדי |\n| RUB | רובל |\n| BRL | ריאל ברזילאי |\n| HKD | דולר הונג קונגי |\n| SGD | דולר סינגפורי |\n| THB | באט תאילנדי |\n| MXN | פזו מקסיקני |\n| TRY | לירה טורקית |\n| NZD | דולר ניו זילנדי |\n| SEK | כתר שבדי |\n| NOK | כתר נורבגי |\n| DKK | כתר דני |\n| KRW | וון דרום קוריאני |\n| INR | רופי הודי |\n| IDR | רופי אינדונזי |\n| PLN | זלוטי |\n| RON | לאו רומני |\n| ZAR | ראנד דרא״פ |\n| HRK | קונה |",
+            "maxLength": 10000
+          },
+          "currencyRate": {
+            "type": "number",
+            "description": "Exchange rate relative to ILS. Defaults to 1."
+          },
+          "amount": {
+            "type": "number",
+            "description": "Total amount of the expense, including VAT. For example: 472."
+          },
+          "vat": {
+            "type": "number",
+            "description": "VAT portion of the amount. May not exceed `amount`. For example: 72."
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the expense. For example: `אינסטלטור`.",
+            "maxLength": 10000
+          },
+          "remarks": {
+            "type": "string",
+            "description": "Free-text remarks. For example: `אינסטלטור-שולם`.",
+            "maxLength": 10000
+          },
+          "labels": {
+            "type": "array",
+            "description": "Labels used to identify the expense. For example: `[\"דחוף\"]`.",
+            "items": {
+              "type": "string",
+              "maxLength": 10000
+            },
+            "maxItems": 200
+          },
+          "allocationNumber": {
+            "type": "string",
+            "description": "Tax Authority Allocation Number, when applicable. For example: `166056573`.",
+            "maxLength": 10000
+          },
+          "pcnClassification": {
+            "type": "string",
+            "description": "PCN874 input classification (for the Israeli Tax Authority PCN874 report).\n\n| Value | Meaning |\n|-------|---------|\n| T | תשומה רגילה |\n| R | רשומון יבוא |\n| K | ספק קופה קטנה |\n| P | ספק רשות פלסטינית |\n| C | תשומה חשבונית עצמית |\n| H | מסמך אחר |",
+            "maxLength": 10000
+          },
+          "supplier": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "The supplier name. For example: `ישראל ישראלי`.",
+                "maxLength": 10000
+              },
+              "active": {
+                "type": "boolean",
+                "description": "Is the supplier currently active or not. Defaults to `true`."
+              },
+              "department": {
+                "type": "string",
+                "description": "The supplier department. For example: `Sales`.",
+                "maxLength": 10000
+              },
+              "taxId": {
+                "type": "string",
+                "description": "The supplier tax ID. For example: `999317746`.",
+                "maxLength": 10000
+              },
+              "accountingKey": {
+                "type": "string",
+                "description": "The supplier accounting key. For example: `31653639`.",
+                "maxLength": 10000
+              },
+              "paymentTerms": {
+                "type": "integer",
+                "description": "Payment term.\n\n| Code | Term |\n|------|------|\n| -1 | מיידי |\n| 0 | שוטף |\n| 10 | שוטף +10 |\n| 15 | שוטף +15 |\n| 30 | שוטף +30 |\n| 45 | שוטף +45 |\n| 60 | שוטף +60 |\n| 75 | שוטף +75 |\n| 90 | שוטף +90 |\n| 120 | שוטף +120 |"
+              },
+              "bankName": {
+                "type": "string",
+                "description": "The supplier bank name. For example: `פועלים`.",
+                "maxLength": 10000
+              },
+              "bankBranch": {
+                "type": "string",
+                "description": "The supplier bank branch number. For example: `123`.",
+                "maxLength": 10000
+              },
+              "bankAccount": {
+                "type": "string",
+                "description": "The supplier bank account number. For example: `123456`.",
+                "maxLength": 10000
+              },
+              "address": {
+                "type": "string",
+                "description": "The supplier address. For example: `הרצל 12`.",
+                "maxLength": 10000
+              },
+              "city": {
+                "type": "string",
+                "description": "The supplier city. For example: `תל אביב`.",
+                "maxLength": 10000
+              },
+              "zip": {
+                "type": "string",
+                "description": "The supplier ZIP code. For example: `6688320`.",
+                "maxLength": 10000
+              },
+              "country": {
+                "type": "string",
+                "description": "2-letter ISO 3166-1 alpha-2 country code. Defaults to `IL` (Israel). Use the [Get Supported Countries](#operation/getSupportedCountries) endpoint to retrieve the full list. For example: `IL`.",
+                "maxLength": 10000
+              },
+              "phone": {
+                "type": "string",
+                "description": "The supplier phone number. For example: `0505555555`.",
+                "maxLength": 10000
+              },
+              "fax": {
+                "type": "string",
+                "description": "The supplier fax number. For example: `0504444444`.",
+                "maxLength": 10000
+              },
+              "mobile": {
+                "type": "string",
+                "description": "The supplier mobile number. For example: `0504444444`.",
+                "maxLength": 10000
+              },
+              "remarks": {
+                "type": "string",
+                "description": "Supplier remarks for internal use. For example: `ספק קבוע`.",
+                "maxLength": 10000
+              },
+              "contactPerson": {
+                "type": "string",
+                "description": "The supplier contact person name. For example: `ישראל ישראלי`.",
+                "maxLength": 10000
+              },
+              "emails": {
+                "type": "array",
+                "description": "The supplier email addresses (up to 3). For example: `[\"test_test@test.com\"]`.",
+                "maxItems": 3,
+                "items": {
+                  "type": "string",
+                  "maxLength": 10000
+                }
+              },
+              "labels": {
+                "type": "array",
+                "description": "Label names to assign to the supplier (up to 3). For example: `[\"אינסטלטורים\"]`.",
+                "maxItems": 3,
+                "items": {
+                  "type": "string",
+                  "maxLength": 10000
+                }
+              },
+              "balanceAmount": {
+                "type": "number",
+                "description": "Opening balance for the supplier. This value is primarily computed by the system from the supplier's documents and payments; provide it only to set an initial balance. For example: 0."
+              },
+              "add": {
+                "type": "boolean",
+                "description": "Whether to also save this supplier to the business's saved suppliers. Defaults to `false`."
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "accountingClassification": {
+            "type": "object",
+            "description": "Accounting classification (expense category). On the request, send an existing classification's `id` (from the Get Accounting Classifications endpoint), or the details (`irsCode`, `title`, `income`, `vat`) to classify inline.",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The classification ID. For example: `451b3028-68b7-4d1a-bf63-9bb8be24ca9d`.",
+                "maxLength": 10000
+              },
+              "key": {
+                "type": "string",
+                "description": "The classification key. For example: `1310`.",
+                "maxLength": 10000
+              },
+              "code": {
+                "type": "string",
+                "description": "The classification code. For example: `1300`.",
+                "maxLength": 10000
+              },
+              "title": {
+                "type": "string",
+                "description": "The classification title. For example: `עבודות חוץ וקבלני משנה`.",
+                "maxLength": 10000
+              },
+              "irsCode": {
+                "type": "integer",
+                "description": "The Israeli Tax Authority code for this classification."
+              },
+              "type": {
+                "type": "integer",
+                "description": "The classification type."
+              },
+              "income": {
+                "type": "number",
+                "description": "Recognised income percentage for this classification."
+              },
+              "vat": {
+                "type": "number",
+                "description": "Recoverable VAT percentage for this classification."
+              },
+              "mixed": {
+                "type": "number",
+                "description": "Business-use percentage applied to the expense."
+              },
+              "creationDate": {
+                "type": "integer",
+                "description": "Creation date, as a Unix timestamp in seconds."
+              },
+              "lastUpdateDate": {
+                "type": "integer",
+                "description": "Last update date, as a Unix timestamp in seconds."
+              }
+            },
+            "additionalProperties": false
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Whether the expense is active. Defaults to true."
+          }
+        },
+        "required": [
+          "documentType",
+          "number",
+          "date",
+          "reportingDate",
+          "supplier",
+          "accountingClassification"
+        ],
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "4c0e7d6769392285deddb73a5eba6a78f76a5105a6ad1d66a8118290028afc7b"
+    },
+    {
+      "id": "searchExpenses",
+      "method": "POST",
+      "path": "/expenses/search",
+      "title": "Search Expenses",
+      "group": "Expenses",
+      "description": "Search the current business's expenses with optional filters. Results are paginated.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "body": {
+        "type": "object",
+        "description": "Filters for searching expenses. All fields are optional; an empty body returns all expenses.",
+        "properties": {
+          "fromDate": {
+            "type": "string",
+            "description": "Start of the reporting-date range to filter by. Filters on the expense's reporting date (the VAT reporting period), not its document date. Must be the first day of the month, formatted YYYY-MM-01. For example: `2025-06-01`.",
+            "maxLength": 10000
+          },
+          "toDate": {
+            "type": "string",
+            "description": "End of the reporting-date range to filter by. Filters on the expense's reporting date (the VAT reporting period), not its document date. Must be the first day of the month, formatted YYYY-MM-01. For example: `2026-06-01`.",
+            "maxLength": 10000
+          },
+          "description": {
+            "type": "string",
+            "description": "Filter by expense description. For example: `אינסטלטור`.",
+            "maxLength": 10000
+          },
+          "supplierId": {
+            "type": "string",
+            "description": "Filter by supplier ID. For example: `28fa4c1d-a29b-11e4-963c-18002725111e`.",
+            "maxLength": 10000
+          },
+          "supplierName": {
+            "type": "string",
+            "description": "Filter by supplier name. For example: `אינסטלטור`.",
+            "maxLength": 10000
+          },
+          "number": {
+            "type": "string",
+            "description": "Filter by the expense (supplier document) number. For example: `100`.",
+            "maxLength": 10000
+          },
+          "paid": {
+            "type": "boolean",
+            "description": "Filter by payment state. When omitted, both paid and unpaid expenses are returned. For example: `true`."
+          },
+          "minAmount": {
+            "type": "number",
+            "description": "Minimum expense amount. For example: 100."
+          },
+          "maxAmount": {
+            "type": "number",
+            "description": "Maximum expense amount. For example: 5000."
+          },
+          "documentType": {
+            "type": "array",
+            "description": "Filter by one or more expense document types. For example: `[320]`.",
+            "items": {
+              "type": "integer",
+              "description": "Expense document type code.\n\n| Code | Type |\n|------|------|\n| 20 | חשבון / אישור תשלום |\n| 305 | חשבונית מס |\n| 320 | חשבונית מס / קבלה |\n| 330 | חשבונית זיכוי |\n| 400 | קבלה |\n| 405 | קבלה על תרומה |"
+            },
+            "maxItems": 200
+          },
+          "paymentType": {
+            "type": "array",
+            "description": "Filter by one or more payment methods. For example: `[3]`.",
+            "items": {
+              "type": "integer",
+              "description": "Expense payment method.\n\n| Code | Method |\n|------|--------|\n| -1 | לא שולם |\n| 1 | מזומן |\n| 2 | צ׳ק |\n| 3 | כרטיס אשראי |\n| 4 | העברה בנקאית |\n| 5 | פייפאל |\n| 10 | אפליקציית תשלום |\n| 11 | אחר |"
+            },
+            "maxItems": 200
+          },
+          "status": {
+            "type": "array",
+            "description": "Filter by one or more expense statuses. For example: `[10]`.",
+            "items": {
+              "type": "integer",
+              "description": "Expense status.\n\n| Code | Status |\n|------|--------|\n| 10 | הוצאה אושרה לדו״ח |\n| 20 | הוצאה נכללת בדו״ח |\n| 30 | הוצאה שנערכה מחדש |\n| 40 | הוצאה אושרה ע״י מייצג |\n| 100 | הוצאה מחוקה |"
+            },
+            "maxItems": 200
+          },
+          "page": {
+            "type": "integer",
+            "description": "Page number to retrieve (1-based). Defaults to 1."
+          },
+          "pageSize": {
+            "type": "integer",
+            "description": "Number of results per page. Defaults to 25."
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "2234f54e0b8fbde85d8e50498c790e863baf7e0525a1fe4dfe1ae992104ed2e8"
+    },
+    {
+      "id": "getExpense",
+      "method": "GET",
+      "path": "/expenses/{id}",
+      "title": "Get Expense",
+      "group": "Expenses",
+      "description": "Retrieve a single expense by its ID.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "49452233779075e71886aa356bfd686d2a21d8a5e46cc174d629ca982e230770"
+    },
+    {
+      "id": "updateExpense",
+      "method": "PUT",
+      "path": "/expenses/{id}",
+      "title": "Update Expense",
+      "group": "Expenses",
+      "description": "Update an existing expense by its ID. Only the fields you send are applied.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "change",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "body": {
+        "type": "object",
+        "description": "Fields to update on the expense. All fields are optional — only the fields you send are applied.",
+        "properties": {
+          "documentType": {
+            "type": "integer",
+            "description": "Expense document type code.\n\n| Code | Type |\n|------|------|\n| 20 | חשבון / אישור תשלום |\n| 305 | חשבונית מס |\n| 320 | חשבונית מס / קבלה |\n| 330 | חשבונית זיכוי |\n| 400 | קבלה |\n| 405 | קבלה על תרומה |"
+          },
+          "number": {
+            "type": "string",
+            "description": "The supplier's document number. For example: `111`.",
+            "maxLength": 10000
+          },
+          "date": {
+            "type": "string",
+            "description": "Date of the expense, formatted YYYY-MM-DD. Must be 2010-01-01 or later and not in the future. For example: `2026-06-09`.",
+            "maxLength": 10000
+          },
+          "reportingDate": {
+            "type": "string",
+            "description": "VAT reporting date. Must be the first day of the month, formatted YYYY-MM-01. For example: `2026-06-01`.",
+            "maxLength": 10000
+          },
+          "paymentType": {
+            "type": "integer",
+            "description": "Expense payment method.\n\n| Code | Method |\n|------|--------|\n| -1 | לא שולם |\n| 1 | מזומן |\n| 2 | צ׳ק |\n| 3 | כרטיס אשראי |\n| 4 | העברה בנקאית |\n| 5 | פייפאל |\n| 10 | אפליקציית תשלום |\n| 11 | אחר |"
+          },
+          "currency": {
+            "type": "string",
+            "description": "3-letter ISO currency code.\n\n| Code | Name |\n|------|------|\n| ILS | שקל |\n| USD | דולר |\n| EUR | אירו |\n| GBP | ליש״ט |\n| JPY | יין יפני |\n| CHF | פרנק שוויצרי |\n| CNY | יואן סיני |\n| AUD | דולר אוסטרלי |\n| CAD | דולר קנדי |\n| RUB | רובל |\n| BRL | ריאל ברזילאי |\n| HKD | דולר הונג קונגי |\n| SGD | דולר סינגפורי |\n| THB | באט תאילנדי |\n| MXN | פזו מקסיקני |\n| TRY | לירה טורקית |\n| NZD | דולר ניו זילנדי |\n| SEK | כתר שבדי |\n| NOK | כתר נורבגי |\n| DKK | כתר דני |\n| KRW | וון דרום קוריאני |\n| INR | רופי הודי |\n| IDR | רופי אינדונזי |\n| PLN | זלוטי |\n| RON | לאו רומני |\n| ZAR | ראנד דרא״פ |\n| HRK | קונה |",
+            "maxLength": 10000
+          },
+          "currencyRate": {
+            "type": "number",
+            "description": "Exchange rate relative to ILS. For example: 1."
+          },
+          "amount": {
+            "type": "number",
+            "description": "Total amount of the expense, including VAT. For example: 2360."
+          },
+          "vat": {
+            "type": "number",
+            "description": "VAT portion of the amount. May not exceed `amount`. For example: 360."
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the expense. For example: `מאתר נזילות`.",
+            "maxLength": 10000
+          },
+          "remarks": {
+            "type": "string",
+            "description": "Free-text remarks. For example: `מאתר נזילות - שולם`.",
+            "maxLength": 10000
+          },
+          "labels": {
+            "type": "array",
+            "description": "Labels used to identify the expense. For example: `[\"דחוף\"]`.",
+            "items": {
+              "type": "string",
+              "maxLength": 10000
+            },
+            "maxItems": 200
+          },
+          "allocationNumber": {
+            "type": "string",
+            "description": "Tax Authority Allocation Number, when applicable. For example: `166056573`.",
+            "maxLength": 10000
+          },
+          "pcnClassification": {
+            "type": "string",
+            "description": "PCN874 input classification (for the Israeli Tax Authority PCN874 report).\n\n| Value | Meaning |\n|-------|---------|\n| T | תשומה רגילה |\n| R | רשומון יבוא |\n| K | ספק קופה קטנה |\n| P | ספק רשות פלסטינית |\n| C | תשומה חשבונית עצמית |\n| H | מסמך אחר |",
+            "maxLength": 10000
+          },
+          "supplier": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "The supplier name. For example: `ישראל ישראלי`.",
+                "maxLength": 10000
+              },
+              "active": {
+                "type": "boolean",
+                "description": "Is the supplier currently active or not. Defaults to `true`."
+              },
+              "department": {
+                "type": "string",
+                "description": "The supplier department. For example: `Sales`.",
+                "maxLength": 10000
+              },
+              "taxId": {
+                "type": "string",
+                "description": "The supplier tax ID. For example: `999317746`.",
+                "maxLength": 10000
+              },
+              "accountingKey": {
+                "type": "string",
+                "description": "The supplier accounting key. For example: `31653639`.",
+                "maxLength": 10000
+              },
+              "paymentTerms": {
+                "type": "integer",
+                "description": "Payment term.\n\n| Code | Term |\n|------|------|\n| -1 | מיידי |\n| 0 | שוטף |\n| 10 | שוטף +10 |\n| 15 | שוטף +15 |\n| 30 | שוטף +30 |\n| 45 | שוטף +45 |\n| 60 | שוטף +60 |\n| 75 | שוטף +75 |\n| 90 | שוטף +90 |\n| 120 | שוטף +120 |"
+              },
+              "bankName": {
+                "type": "string",
+                "description": "The supplier bank name. For example: `פועלים`.",
+                "maxLength": 10000
+              },
+              "bankBranch": {
+                "type": "string",
+                "description": "The supplier bank branch number. For example: `123`.",
+                "maxLength": 10000
+              },
+              "bankAccount": {
+                "type": "string",
+                "description": "The supplier bank account number. For example: `123456`.",
+                "maxLength": 10000
+              },
+              "address": {
+                "type": "string",
+                "description": "The supplier address. For example: `הרצל 12`.",
+                "maxLength": 10000
+              },
+              "city": {
+                "type": "string",
+                "description": "The supplier city. For example: `תל אביב`.",
+                "maxLength": 10000
+              },
+              "zip": {
+                "type": "string",
+                "description": "The supplier ZIP code. For example: `6688320`.",
+                "maxLength": 10000
+              },
+              "country": {
+                "type": "string",
+                "description": "2-letter ISO 3166-1 alpha-2 country code. Defaults to `IL` (Israel). Use the [Get Supported Countries](#operation/getSupportedCountries) endpoint to retrieve the full list. For example: `IL`.",
+                "maxLength": 10000
+              },
+              "phone": {
+                "type": "string",
+                "description": "The supplier phone number. For example: `0505555555`.",
+                "maxLength": 10000
+              },
+              "fax": {
+                "type": "string",
+                "description": "The supplier fax number. For example: `0504444444`.",
+                "maxLength": 10000
+              },
+              "mobile": {
+                "type": "string",
+                "description": "The supplier mobile number. For example: `0504444444`.",
+                "maxLength": 10000
+              },
+              "remarks": {
+                "type": "string",
+                "description": "Supplier remarks for internal use. For example: `ספק קבוע`.",
+                "maxLength": 10000
+              },
+              "contactPerson": {
+                "type": "string",
+                "description": "The supplier contact person name. For example: `ישראל ישראלי`.",
+                "maxLength": 10000
+              },
+              "emails": {
+                "type": "array",
+                "description": "The supplier email addresses (up to 3). For example: `[\"test_test@test.com\"]`.",
+                "maxItems": 3,
+                "items": {
+                  "type": "string",
+                  "maxLength": 10000
+                }
+              },
+              "labels": {
+                "type": "array",
+                "description": "Label names to assign to the supplier (up to 3). For example: `[\"אינסטלטורים\"]`.",
+                "maxItems": 3,
+                "items": {
+                  "type": "string",
+                  "maxLength": 10000
+                }
+              },
+              "balanceAmount": {
+                "type": "number",
+                "description": "Opening balance for the supplier. This value is primarily computed by the system from the supplier's documents and payments; provide it only to set an initial balance. For example: 0."
+              },
+              "add": {
+                "type": "boolean",
+                "description": "Whether to also save this supplier to the business's saved suppliers. Defaults to `false`."
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "accountingClassification": {
+            "type": "object",
+            "description": "Accounting classification (expense category). On the request, send an existing classification's `id` (from the Get Accounting Classifications endpoint), or the details (`irsCode`, `title`, `income`, `vat`) to classify inline.",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The classification ID. For example: `451b3028-68b7-4d1a-bf63-9bb8be24ca9d`.",
+                "maxLength": 10000
+              },
+              "key": {
+                "type": "string",
+                "description": "The classification key. For example: `1310`.",
+                "maxLength": 10000
+              },
+              "code": {
+                "type": "string",
+                "description": "The classification code. For example: `1300`.",
+                "maxLength": 10000
+              },
+              "title": {
+                "type": "string",
+                "description": "The classification title. For example: `עבודות חוץ וקבלני משנה`.",
+                "maxLength": 10000
+              },
+              "irsCode": {
+                "type": "integer",
+                "description": "The Israeli Tax Authority code for this classification."
+              },
+              "type": {
+                "type": "integer",
+                "description": "The classification type."
+              },
+              "income": {
+                "type": "number",
+                "description": "Recognised income percentage for this classification."
+              },
+              "vat": {
+                "type": "number",
+                "description": "Recoverable VAT percentage for this classification."
+              },
+              "mixed": {
+                "type": "number",
+                "description": "Business-use percentage applied to the expense."
+              },
+              "creationDate": {
+                "type": "integer",
+                "description": "Creation date, as a Unix timestamp in seconds."
+              },
+              "lastUpdateDate": {
+                "type": "integer",
+                "description": "Last update date, as a Unix timestamp in seconds."
+              }
+            },
+            "additionalProperties": false
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Whether the expense is active. For example: `true`."
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "fe60c05fe48ea64759a58fac44c3fa66c9ae7070be3a4511353072734e8ec0d2"
+    },
+    {
+      "id": "deleteExpense",
+      "method": "DELETE",
+      "path": "/expenses/{id}",
+      "title": "Delete Expense",
+      "group": "Expenses",
+      "description": "Delete an expense by its ID. Returns the deleted expense.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "destructive",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "106ab8aaa04e4626e197745ecf0eafd08a6d6aee850ce63a1febb59d9ec43a9e"
+    },
+    {
+      "id": "getExpenseStatuses",
+      "method": "GET",
+      "path": "/expenses/statuses",
+      "title": "Get Allowed Expenses Statuses",
+      "group": "Expenses",
+      "description": "Retrieve the available expense statuses as a list of `{ id, name }` pairs. Names are localised by the `lang` query parameter.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "lang": {
+            "type": "string",
+            "enum": [
+              "he",
+              "en"
+            ],
+            "description": "Content language",
+            "maxLength": 10000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "lang",
+          "in": "query"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "be799d39d02b45214c1756c93731fee1afc26132d74867c8792af5947d4325b7"
+    },
+    {
+      "id": "closeExpense",
+      "method": "POST",
+      "path": "/expenses/{id}/close",
+      "title": "Close Expense",
+      "group": "Expenses",
+      "description": "Close an expense by its ID. No request body is required, and the response returns an empty body.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "change",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "a65d5a80f34107b80497b32648dfc9e5fb66f401cab84ac2d1a3a348870ee8bd"
+    },
+    {
+      "id": "openExpense",
+      "method": "POST",
+      "path": "/expenses/{id}/open",
+      "title": "Open Expense",
+      "group": "Expenses",
+      "description": "Open an expense by its ID. No request body is required, and the response returns an empty body.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "approval",
+      "risk": "change",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "id",
+          "in": "path"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "2eec00ebfda615f49ab0afc1a5c7f6ebe031ed0a3df1006be2869cf17db99c7f"
+    },
+    {
+      "id": "getExpenseFileUploadUrl",
+      "method": "GET",
+      "path": "/file-upload/v1/url",
+      "title": "Upload Expense File · Step 1: Get Upload URL",
+      "group": "Expenses",
+      "description": "**Step 1 of the expense file-upload flow.** Returns a pre-signed S3 POST (`url` + `fields`) that you use in Step 2 to upload the file. Uploading a file always creates an **expense draft** (which becomes a real expense only after approval).\n\n> **Note:** The pre-signed POST is valid for **60 seconds**. Complete Step 2 within 60 seconds of this request — after that the URL expires and you must request a new one.\n\n- To create a new draft, send `data={\"source\":5}`.\n- To attach a file to an existing expense, send `data={\"id\":\"<expenseId>\",\"source\":5,\"state\":\"expense\"}`.\n\nThe upload is processed **asynchronously**; track the outcome via webhooks (`expense-draft/parsed`, `expense-file/updated`, `expense-draft/declined`, `file/infected`).\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "special",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "context": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "data": {
+            "type": "string",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "context",
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "context",
+          "in": "query"
+        },
+        {
+          "name": "data",
+          "in": "query"
+        }
+      ],
+      "bodyRequired": false,
+      "special": "approved_expense_upload",
+      "fingerprint": "6aef07482f56645c8da802a3b39e5600c40917fab2d6fa75e258882f0768d42f"
+    },
+    {
+      "id": "uploadExpenseFile",
+      "method": "POST",
+      "path": "/",
+      "title": "Upload Expense File · Step 2: Send the File",
+      "group": "Expenses",
+      "description": "**Step 2 of the expense file-upload flow.** Upload the file directly to the `url` returned by [Step 1: Get Upload URL](#operation/getExpenseFileUploadUrl), sending every field from that response's `fields` object as `multipart/form-data` alongside the `file`.\n\n> **Important:** Add the `file` field **last** in the `multipart/form-data` body — after all the other fields. The upload fails if `file` is not the final field.\n\n> **Note:** The pre-signed POST returned in Step 1 is valid for only **60 seconds**. Upload the file within that window, or it expires and you'll need to request a new URL.\n\nWhether this **creates a new expense draft** or **updates an existing expense's file** is determined by the `data` you sent in Step 1. Processing is **asynchronous** — the response is `204 No Content`; track the outcome via webhooks. An expense cannot be updated once it has been reported.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `multipart/form-data` | Yes |",
+      "mode": "special",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "bodyRequired": true,
+      "special": "approved_expense_upload",
+      "fingerprint": "e346a82bda3dbdcb02576eb21977650ba90aafe8cab336ff5b95da26af636df9"
+    },
+    {
+      "id": "searchExpenseDrafts",
+      "method": "POST",
+      "path": "/expenses/drafts/search",
+      "title": "Search Expense Drafts",
+      "group": "Expenses",
+      "description": "Search the current business's expense drafts with optional filters. Results are paginated.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Bearer <accessToken>` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "body": {
+        "type": "object",
+        "description": "Filters for searching expense drafts. All fields are optional; an empty body returns all drafts.",
+        "properties": {
+          "fromDate": {
+            "type": "string",
+            "description": "Start of the creation date range to filter by, formatted YYYY-MM-DD.",
+            "maxLength": 10000
+          },
+          "toDate": {
+            "type": "string",
+            "description": "End of the creation date range to filter by, formatted YYYY-MM-DD.",
+            "maxLength": 10000
+          },
+          "description": {
+            "type": "string",
+            "description": "Filter by expense draft description.",
+            "maxLength": 10000
+          },
+          "supplierId": {
+            "type": "string",
+            "description": "Filter by supplier ID.",
+            "maxLength": 10000
+          },
+          "supplierName": {
+            "type": "string",
+            "description": "Filter by supplier name. For example: `שפע`.",
+            "maxLength": 10000
+          },
+          "page": {
+            "type": "integer",
+            "description": "Page number to retrieve (1-based). Defaults to 1."
+          },
+          "pageSize": {
+            "type": "integer",
+            "description": "Number of results per page."
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "fingerprint": "20c63436b4c7358b7b408ca841addcc4f2062f5cb609e1728074ebf9f5186871"
+    },
+    {
+      "id": "getSupportedBusinessCategories",
+      "method": "GET",
+      "path": "/businesses/v1/occupations",
+      "title": "Get Supported Business Categories",
+      "group": "Reference",
+      "description": "Get all supported business categories and their sub-categories, ordered alphabetically by the localized name.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "reference",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string",
+            "enum": [
+              "en_US",
+              "he_IL"
+            ],
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "locale"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "locale",
+          "in": "query"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "686f6b2fef1422f545d00fbc811078ced1e95ee59f5e066f39c8214342b8745d"
+    },
+    {
+      "id": "getSupportedCountries",
+      "method": "GET",
+      "path": "/geo-location/v1/countries",
+      "title": "Get Supported Countries",
+      "group": "Reference",
+      "description": "Get all supported countries, ordered alphabetically by the localized country name.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "reference",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string",
+            "enum": [
+              "en_US",
+              "he_IL"
+            ],
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "locale"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "locale",
+          "in": "query"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "cfdbcbdb8520b1731de2197e2c8c22636b2920e177c08db42e8574a67f681a26"
+    },
+    {
+      "id": "getSupportedCities",
+      "method": "GET",
+      "path": "/geo-location/v1/cities",
+      "title": "Get Supported Cities",
+      "group": "Reference",
+      "description": "Get all supported cities for a given country, ordered alphabetically by the localized city name.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "reference",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string",
+            "enum": [
+              "en_US",
+              "he_IL"
+            ],
+            "maxLength": 10000
+          },
+          "country": {
+            "type": "string",
+            "enum": [
+              "IL"
+            ],
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "locale",
+          "country"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "locale",
+          "in": "query"
+        },
+        {
+          "name": "country",
+          "in": "query"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "159961b759dfe81a9031992d75c0cd4ed764748638af7b19653c198071f9e0ea"
+    },
+    {
+      "id": "getSupportedCurrencies",
+      "method": "GET",
+      "path": "/currency-exchange/v1/latest",
+      "title": "Get Supported Currencies",
+      "group": "Reference",
+      "description": "Get the latest and previous-day exchange rates for supported currencies, relative to a specified base currency.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |",
+      "mode": "read",
+      "risk": "none",
+      "host": "reference",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "base": {
+            "type": "string",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "base"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "base",
+          "in": "query"
+        }
+      ],
+      "bodyRequired": false,
+      "fingerprint": "337091d9d026653827fdf83750cf2ecda0bef88434fbc75210a69eb47e203aa3"
+    },
+    {
+      "id": "getPartnerUsers",
+      "method": "GET",
+      "path": "/partners/users",
+      "title": "Get Connected Users",
+      "group": "Partners",
+      "description": "Returns all connected and approved users for your partner account.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Basic <credentials>` | Yes |",
+      "mode": "special",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "bodyRequired": false,
+      "special": "requires_partner_credentials",
+      "fingerprint": "9313163d43ccb31afef675d49eebd323a6065a66e1246c9b022e568e7003c71f"
+    },
+    {
+      "id": "requestUserApproval",
+      "method": "POST",
+      "path": "/partners/users/connection",
+      "title": "Request User Approval",
+      "group": "Partners",
+      "description": "Sends a connection request to an existing morning by Green Invoice user.\n\nThe user receives an email with a link to approve the connection. The link expires after 3 days — if it is not approved in time, a new request must be initiated.\n\nOnce the user approves, Green Invoice sends a `POST` request to the `url` you specified. The body contains the connected user's `id`, `email`, and a `key` object holding the business's newly created API key — including its `id` and `secret`. An `X-Data-Signature` header is also included — the SHA-256 HMAC of the body using your partner authorization code as the key — which you can use to verify the callback's authenticity.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Basic <credentials>` | Yes |",
+      "mode": "special",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "sources": [],
+      "body": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "The email address of the morning user to invite. For example: `user@example.com`.",
+            "maxLength": 10000
+          },
+          "url": {
+            "type": "string",
+            "description": "The callback URL where Green Invoice will send the connection approval notification. For example: `https://example.com/callback`.",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "email",
+          "url"
+        ],
+        "additionalProperties": false
+      },
+      "bodyRequired": true,
+      "special": "requires_partner_credentials",
+      "fingerprint": "b9e1c9af1de488912931bc8ea1dbe39c17a97331bdf7b9cd276b02697990e040"
+    },
+    {
+      "id": "disconnectPartnerUser",
+      "method": "DELETE",
+      "path": "/partners/users/connection",
+      "title": "Disconnect Partner User",
+      "group": "Partners",
+      "description": "Removes a connected user from your partner account.\n\nAll partner-related API keys for the user's businesses are revoked and you will no longer be able to access their resources. If the user is billed through your partner account, billing stops immediately for future documents.\n\nThe user receives a notification email upon disconnection. A disconnected user may reconnect at any time.\n\n> **Note:** All businesses of the specified user that are associated with your partner will be disconnected.\n\n**Request headers**\n\n| Header | Value | Required |\n|--------|-------|----------|\n| `Content-Type` | `application/json` | Yes |\n| `Authorization` | `Basic <credentials>` | Yes |",
+      "mode": "special",
+      "risk": "none",
+      "host": "business",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "additionalProperties": false
+      },
+      "sources": [
+        {
+          "name": "email",
+          "in": "query"
+        }
+      ],
+      "bodyRequired": false,
+      "special": "requires_partner_credentials",
+      "fingerprint": "11f357d6b6dbd820f4e30e88320f48b0855233622dac7e7e72c965435f0fb507"
+    }
+  ]
+}
