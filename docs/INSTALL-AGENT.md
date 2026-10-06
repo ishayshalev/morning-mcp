@@ -1,0 +1,60 @@
+<div dir="rtl" lang="he">
+
+# התקנה באמצעות סוכן
+
+המשתמש שהדביק את פרומפט ההתקנה מבקש התקנה מקומית של החיבור והוספתו ללקוח MCP שבו הוא עובד. קרא את ההוראות לפני ביצוע. אין צורך ליצור חשבון באתר, במסד נתונים או בקובץ התקנה שהמשתמש מוריד ידנית.
+
+## התקנה מקומית
+
+1. בדוק את מערכת ההפעלה ואת סביבת העבודה. מסלול זה מיועד ל־macOS ול־Linux. ב־Windows ובסביבת ענן שאינה מחוברת למחשב המשתמש הסבר את המגבלה לפני שינוי הגדרות.
+2. ודא שיש Git, npm ו־Node.js 22 ומעלה. אם חסרים, עזור להתקין מהמקור הרשמי בהתאם להרשאות המשתמש. אין להשתמש ב־sudo או לשנות הגדרות אבטחה אוטומטית.
+3. בחר תיקייה קבועה שבבעלות המשתמש, מחוץ לפרויקט זמני. אם כבר יש התקנה, בדוק את מקור המאגר ושמור שינויים קיימים. אין לדרוס קבצים או לשכפל הגדרות MCP.
+4. הורד את המקור מהמאגר הזה והתקן את התלויות לפי קובץ הנעילה:
+
+<pre dir="ltr"><code>git clone https://github.com/ishayshalev/morning-mcp.git /ABSOLUTE/PATH/TO/morning-mcp
+npm ci --ignore-scripts --prefix /ABSOLUTE/PATH/TO/morning-mcp</code></pre>
+
+החלף את הנתיב בדוגמה בנתיב אמיתי. אין צורך בהתקנה גלובלית, ב־npm link או בפרסום חבילה ב־npm. אל תפעיל את שירות הענן הישן או כתובת Vercel.
+
+## חיבור ללקוח הנוכחי
+
+מצא את הנתיב המלא ל־Node ואת הנתיב המלא ל־<code dir="ltr">bin/morning-mcp.mjs</code>. הגדר את Node בתור הפקודה ואת קובץ השרת בתור הארגומנט. כך לקוח שולחני אינו תלוי ב־PATH של Terminal.
+
+**Codex:** הוסף או עדכן רק את הגדרת morning בקובץ <code dir="ltr">~/.codex/config.toml</code>, או בתיקיית CODEX_HOME אם היא הוגדרה. שמור את יתר ההגדרות. אל תדפיס טוקנים או ערכי מפתחות מתוך קובצי ההגדרה. בדוק שאין הגדרה ברמת פרויקט שעוקפת אותה.
+
+<pre dir="ltr"><code>[mcp_servers.morning]
+command = "/ABSOLUTE/PATH/TO/node"
+args = ["/ABSOLUTE/PATH/TO/morning-mcp/bin/morning-mcp.mjs"]
+startup_timeout_sec = 30
+tool_timeout_sec = 180
+
+[mcp_servers.morning.tools.execute_draft]
+approval_mode = "prompt"</code></pre>
+
+ההגדרה הישירה עובדת גם כש־Codex CLI אינו מותקן או אינו זמין. [הגדרות Codex הרשמיות](https://developers.openai.com/codex/config-reference).
+
+**Claude Code:** בדוק את העזרה של הגרסה המותקנת, ואז רשום את השרת בהיקף המשתמש:
+
+<pre dir="ltr"><code>claude mcp add --transport stdio --scope user morning -- /ABSOLUTE/PATH/TO/node /ABSOLUTE/PATH/TO/morning-mcp/bin/morning-mcp.mjs</code></pre>
+
+אם morning כבר קיים, עדכן רק אותו באמצעות הכלים של הלקוח. אל תוסיף הרשאת ביצוע אוטומטית ל־execute_draft ואל תשנה מדיניות אישורים כללית. [הוראות Claude Code הרשמיות](https://code.claude.com/docs/en/mcp).
+
+**Claude Desktop או לקוח מקומי אחר:** השתמש בהגדרת stdio שלו. [דוגמת JSON](../examples/claude-desktop.json) ו[דוגמת Codex](../examples/codex.toml). ב־Claude Desktop במק הקובץ הרגיל הוא <code dir="ltr">~/Library/Application Support/Claude/claude_desktop_config.json</code>. שמור שרתים והגדרות קיימים. אם הלקוח הנוכחי אינו ברור, שאל שאלה אחת במקום להגדיר כמה לקוחות.
+
+לביצוע שינויים נדרשת תמיכה בחלון אישור MCP. ההגדרה approval_mode ב־Codex היא שכבת אישור נוספת; היא אינה מחליפה את חלון האישור שהשרת מבקש. אין לאשר את החלון בשם המשתמש, להפעיל hook שעונה עליו אוטומטית או להבטיח תאימות שטרם נבדקה. לקוח ללא תמיכה יכול לקרוא ולהכין טיוטות בלבד.
+
+## המפתחות מוזנים על ידי המשתמש
+
+בסוף ההתקנה, תן למשתמש את הפקודה המדויקת והמצוטטת לפי הנתיבים האמיתיים:
+
+<pre dir="ltr"><code>"/ABSOLUTE/PATH/TO/node" "/ABSOLUTE/PATH/TO/morning-mcp/bin/morning-mcp.mjs" setup</code></pre>
+
+המשתמש יריץ אותה בעצמו ב־Terminal מקומי וידביק את מזהה המפתח ואת הסוד בשדות המתאימים. אל תריץ setup בתוך מסוף שאתה קורא ממנו פלט, אל תבקש מפתחות בצ׳אט ואל תקרא את <code dir="ltr">~/.morning-mcp/config.json</code>. אל תשמור מפתחות בהגדרות הלקוח או במאגר. אם המשתמש כבר הגדיר חיבור מקומי, אין להחליף אותו ללא בקשה מפורשת.
+
+שלח גם את [עמוד המפתחות במורנינג](https://app.greeninvoice.co.il/settings/developers/api) ו[הסבר ההעתקה וההדבקה](../README.md). הסוד מוצג פעם אחת; אינו מוצג בזמן ההדבקה ב־setup. לחשבון רגיל בוחרים production, ורק למפתחות בדיקה בוחרים sandbox.
+
+לאחר שהמשתמש מודיע שסיים, חבר מחדש את השרת או בקש להפעיל מחדש את הלקוח. קרא connection_status עם verifyMorning=true אם המשתמש ממשיך בתהליך החיבור. זו בדיקת אימות וקריאה בלבד. אם אינה מצליחה, דווח על השגיאה בלי לבקש מפתחות ובלי להדפיס משתני סביבה. אל תוציא חשבונית, תעלה הוצאה או תבצע פעולה אחרת במורנינג כדי לבדוק את ההתקנה.
+
+דווח בנפרד מה הותקן, האם הלקוח מזהה את הכלים והאם האימות מול מורנינג עבר. לפני הזנת המפתחות אין לטעון שהחיבור עובד. תאימות חלון האישור וביצוע פעולות חיות טרם נבדקו בפרויקט זה.
+
+</div>

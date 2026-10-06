@@ -1,8 +1,8 @@
-# Merge into ~/.codex/config.toml after running morning-mcp setup.
-# Use the absolute executable path if your app cannot find morning-mcp.
+# Replace both paths and merge into your existing Codex configuration.
 [mcp_servers.morning]
-command = "morning-mcp"
-args = []
+command = "/ABSOLUTE/PATH/TO/node"
+args = ["/ABSOLUTE/PATH/TO/morning-mcp/bin/morning-mcp.mjs"]
+startup_timeout_sec = 30
 tool_timeout_sec = 180
 
 [mcp_servers.morning.tools.execute_draft]

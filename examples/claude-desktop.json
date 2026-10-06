@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "morning": {
-      "command": "morning-mcp",
-      "args": []
+      "command": "/ABSOLUTE/PATH/TO/node",
+      "args": ["/ABSOLUTE/PATH/TO/morning-mcp/bin/morning-mcp.mjs"]
     }
   }
 }
