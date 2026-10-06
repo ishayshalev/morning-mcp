@@ -23,7 +23,7 @@ async function setupTerminal(){
   try{
     if(await fs.stat(configPath).catch(()=>null)){const answer=await rl.question('Replace your existing local Morning connection? [y/N] ');if(answer.trim().toLowerCase()!=='y')return;replace=true;}
     id=(await rl.question('Morning API key ID: ')).trim();
-    environment=(await rl.question('Environment [production/sandbox] (production): ')).trim()||'production';
+    environment='production';
   }finally{rl.close();}
   if(!id||!['production','sandbox'].includes(environment))throw new Error('Provide an API key ID and a valid environment.');
   const secret=await hiddenSecret();if(!secret.trim())throw new Error('Secret is required.');
@@ -38,7 +38,7 @@ try{
     if(flags.includes('--terminal'))await setupTerminal();else await setupBrowser({openBrowser:!flags.includes('--no-open')});
   }
   else if(command==='--help'||command==='help')process.stderr.write('morning-mcp setup             Open a local browser form for your Morning keys.\nmorning-mcp setup --no-open   Print the local setup link without opening a browser.\nmorning-mcp setup --terminal  Save keys in a private interactive terminal instead.\nmorning-mcp                   Run the personal MCP on stdio.\nEnvironment overrides: MORNING_CLIENT_ID, MORNING_CLIENT_SECRET, MORNING_ENV, MORNING_CONFIG_FILE, MORNING_DATA_DIR, MORNING_WRITES_ENABLED.\n');
-  else if(command==='--version')process.stderr.write('0.1.1\n');
+  else if(command==='--version')process.stderr.write('0.1.2\n');
   else if(command)throw new Error('Unknown argument. Run morning-mcp --help.');
   else{
     // A 20 MB receipt becomes about 27 MB in base64; keep a bounded allowance.
