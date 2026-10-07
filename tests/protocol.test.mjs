@@ -7,9 +7,9 @@ import {randomUUID} from 'node:crypto';
 import {operations} from '../lib/catalog.mjs';
 import {mcp,json,errorText,prepareInput,apiInput,continuation,pdf,clientId} from './helpers.mjs';
 
-test('All 16 tools remain discoverable before keys are saved, and saved keys reload without restart',async t=>{
+test('All 21 tools remain discoverable before keys are saved, and saved keys reload without restart',async t=>{
   const c=await mcp(t,{configured:false});
-  const list=await c.request('tools/list');assert.equal(list.tools.length,16);
+  const list=await c.request('tools/list');assert.equal(list.tools.length,21);
   const initial=json(await c.call('connection_status'));assert.equal(initial.keysConfigured,false);assert.equal(initial.writesEnabled,false);
   assert.match(errorText(await c.call('search_clients',{name:'fictional'})),/not saved/);
   assert.equal((await c.requests()).length,0);
@@ -23,7 +23,7 @@ test('Every catalog read routes through a fixed documented endpoint',async t=>{
   for(const op of operations.filter(o=>o.mode==='read'))json(await c.call('read_morning',apiInput(op.id)));
   const requests=await c.requests();assert.equal(requests.filter(r=>r.write).length,0);
   assert.equal(requests.filter(r=>r.operationId==='authentication').length,1);
-  assert.equal(requests.filter(r=>r.operationId!=='authentication').length,25);
+  assert.equal(requests.filter(r=>r.operationId!=='authentication').length,28);
 });
 
 for(const op of operations.filter(o=>o.mode==='approval'))test(`${op.id}: preparation, decline, cancel and false confirmation cannot write; approval executes once`,async t=>{

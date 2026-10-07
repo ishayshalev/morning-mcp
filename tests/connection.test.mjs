@@ -18,7 +18,7 @@ test('Changing saved credentials invalidates previously prepared drafts',async t
 test('Corrupt saved configuration gives a safe error while operation discovery stays available',async t=>{
   const c=await mcp(t,{configured:false});await fs.writeFile(path.join(c.dir,'config.json'),'{private invalid content');
   assert.match(errorText(await c.call('connection_status')),/configuration/);
-  assert.equal(json(await c.call('api_operations')).length,54);assert.equal((await c.requests()).length,0);
+  assert.equal(json(await c.call('api_operations')).length,61);assert.equal((await c.requests()).length,0);
 });
 
 test('Authentication errors explain the next step without echoing provider text or credentials',async t=>{

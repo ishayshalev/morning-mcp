@@ -31,7 +31,7 @@ export function sample(schema,name=''){
 }
 export function apiInput(id){
   const op=operation(id),parameters=sample(op.parameters),body=op.body?sample(op.body):undefined;
-  if(id==='addDocument'||id==='addPreviewDocument')Object.assign(body,{type:305,lang:'he',currency:'ILS',vatType:0,client:{id:clientId,name:'Fictional audit client',emails:[]},income:[{description:'Fictional service',quantity:1,price:100,currency:'ILS',vatType:0}]});
+  if(['addDocument','addPreviewDocument','createDocumentDraft','updateDocumentDraft'].includes(id))Object.assign(body,{type:305,lang:'he',currency:'ILS',vatType:0,client:{id:clientId,name:'Fictional audit client',emails:[],add:false},income:[{description:'Fictional service',quantity:1,price:100,currency:'ILS',vatType:0}]});
   if(id==='mergeClients'||id==='mergeSuppliers')body.mergeId=otherId;
   return {operationId:id,parameters,...(body?{body}:{})};
 }

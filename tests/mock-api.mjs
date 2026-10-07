@@ -1,6 +1,7 @@
 // Loaded only by the audit harness. Every fetch is intercepted; no network fallback exists.
 import fs from 'node:fs';
 import path from 'node:path';
+import {randomUUID} from 'node:crypto';
 import {operations,operationUrl} from '../lib/catalog.mjs';
 import {pdf,clientId} from './helpers.mjs';
 const dir=process.env.MORNING_AUDIT_DIR;
@@ -9,6 +10,9 @@ const control=()=>{try{return JSON.parse(fs.readFileSync(path.join(dir,'control.
 const now=Date.now.bind(Date);Date.now=()=>now()+(control().clockOffset??0);
 function record(value){fs.appendFileSync(path.join(dir,'requests.jsonl'),JSON.stringify(value)+'\n');}
 const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'Content-Type':'application/json'}});
+const nativeFile=path.join(dir,'native-drafts.json');
+function nativeDrafts(){try{return JSON.parse(fs.readFileSync(nativeFile,'utf8'));}catch{return {[clientId]:{id:clientId,doc:{type:305,lang:'he',currency:'ILS',vatType:0,client:{name:'Fictional audit client',emails:[]},income:[{description:'Fictional service',quantity:1,price:100,currency:'ILS',vatType:0}]},reverseCharge:false}};}}
+function saveNative(records){fs.writeFileSync(nativeFile,JSON.stringify(records));}
 globalThis.fetch=async(input,options={})=>{
   const url=new URL(input),method=options.method??'GET',state=control();
   if(options.redirect!=='error')throw new Error('All fictional requests must reject redirects.');
@@ -42,10 +46,25 @@ globalThis.fetch=async(input,options={})=>{
   if(op.mode==='approval'){
     if(state.failWrite)throw new Error('Fictional connection lost after submission.');
     if(state.invalidWrite)return new Response('not-json',{status:201});
+    if(['createDocumentDraft','updateDocumentDraft','duplicateDocumentDraft','deleteDocumentDraft'].includes(op.id)){
+      const records=nativeDrafts(),target=url.pathname.split('/').at(op.id==='duplicateDocumentDraft'?-2:-1);
+      if(op.id==='deleteDocumentDraft'){delete records[target];saveNative(records);return new Response(null,{status:204});}
+      const id=op.id==='updateDocumentDraft'?target:randomUUID();
+      const doc={...(op.id==='duplicateDocumentDraft'?records[target]?.doc:body),id};
+      const draft={id,doc,reverseCharge:false,lastUpdateDate:new Date().toISOString()};records[id]=draft;saveNative(records);return json(draft,201);
+    }
     if(op.method==='DELETE')return new Response(null,{status:204});
+    if(op.id==='addDocument'&&body.draftId){const records=nativeDrafts();delete records[body.draftId];saveNative(records);}
     return json(op.id==='addDocument'?{id:clientId,number:10001,type:body.type,...(state.taxAuthorityFailure?{taxAuthorityConfirmationLastError:406}:{})}:{id:clientId,completed:true},201);
   }
   if(op.id==='addPreviewDocument')return json({file:state.badPreview??pdf.toString('base64')});
+  if(op.id==='getDocumentDraft'){
+    const draft=nativeDrafts()[url.pathname.split('/').at(-1)];
+    if(!draft)return json({error:'not_found'},404);
+    return json({...draft,...state.nativeDraft,...(state.nativeDoc?{doc:{...draft.doc,...state.nativeDoc}}:{})});
+  }
+  if(op.id==='searchDocumentDrafts')return json({items:Object.values(nativeDrafts()),page:body?.page??1});
+  if(op.id==='countDocumentDrafts')return json({count:Object.keys(nativeDrafts()).length});
   if(op.id==='getDocumentInformation')return json({type:Number(url.searchParams.get('type')),today:'2026-10-06',lastDocumentDate:'2026-10-01',vatRate:.18,exemption:false,incomeRowsEnabled:true,incomeRowsRequired:true,settings:{documentCurrency:'ILS'},hasTaxAuthorityConfirmation:false,...state.info});
   if(['getClient','getSupplier','getItem','getExpense','getDocument'].includes(op.id))return json({id:url.pathname.split('/').at(-1),name:'Fictional audit client',active:true,taxId:'fictional',version:state.resourceVersion??1,...state.resource});
   if(op.id==='getDocumentTypes')return json([{id:305,name:'Fictional tax invoice'}]);
