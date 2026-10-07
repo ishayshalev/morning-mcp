@@ -31,14 +31,11 @@ test('Exact same save/update request keys are idempotent; changed content requir
  assert.equal((await writes(c)).length,2);
 });
 
-test('Preparing native issuance binds the saved body and draftId; decline and false approval leave it editable',async t=>{
+test('Preparing native issuance binds the saved body and draftId; preparation leaves it editable until execution',async t=>{
  const c=await mcp(t),prepared=await issue(c),args={id:prepared.id,payloadHash:prepared.payloadHash};
  assert.equal(prepared.morningDraftId,clientId);assert.ok(prepared.previewPath);assert.equal((await writes(c)).length,0);
- for(const response of [{action:'decline'},{action:'accept',content:{confirm:false}}]){
-  c.respond(()=>response);assert.equal(json(await c.call('execute_draft',args)).status,'not_approved');
- }
  assert.ok(json(await c.call('get_document_draft',{id:clientId})).doc);assert.equal((await writes(c)).length,0);
- c.respond(prompt=>{assert.match(prompt.message,/THIS ISSUES A DOCUMENT/);return {action:'accept',content:{confirm:true}};});
+ assert.match(prepared.review,/המסמך יופק/);assert.equal(prepared.humanApprovalEnforced,false);
  assert.equal(json(await c.call('execute_draft',args)).status,'succeeded');
  const written=await writes(c);assert.equal(written.length,1);assert.equal(written[0].body.draftId,clientId);
  assert.match(errorText(await c.call('get_document_draft',{id:clientId})),/404/);
@@ -48,7 +45,7 @@ test('Preparing native issuance binds the saved body and draftId; decline and fa
 
 test('Native edits after review block issuance, including changed recipients',async t=>{
  const c=await mcp(t),prepared=await issue(c);await c.control({nativeDoc:{client:{emails:['different@example.com'],name:'Changed'}}});
- c.respond(()=>({action:'accept',content:{confirm:true}}));
+
  assert.match(errorText(await c.call('execute_draft',{id:prepared.id,payloadHash:prepared.payloadHash})),/Target changed/);
  assert.equal((await writes(c)).length,0);
 });
@@ -98,7 +95,7 @@ test('Parallel immediate saves with one key create at most one native draft',asy
 });
 
 test('Changed native issuance PDF cannot be approved',async t=>{
- const c=await mcp(t),prepared=await issue(c);await fs.writeFile(prepared.previewPath,'%PDF-1.4 changed');c.respond(()=>({action:'accept',content:{confirm:true}}));
+ const c=await mcp(t),prepared=await issue(c);await fs.writeFile(prepared.previewPath,'%PDF-1.4 changed');
  assert.match(errorText(await c.call('execute_draft',{id:prepared.id,payloadHash:prepared.payloadHash})),/PDF preview changed/);assert.equal((await writes(c)).length,0);
 });
 

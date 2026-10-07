@@ -74,17 +74,14 @@ export async function mcp(t,{version='2025-11-25',capabilities={elicitation:{for
     if(!sharedDir)await fs.rm(dir,{recursive:true,force:true});
   };
   t.after(close);
-  if(!modern){await request('initialize',{protocolVersion:version,capabilities,clientInfo:{name:'fictional-morning-audit',version:'1.0'}});send({jsonrpc:'2.0',method:'notifications/initialized'});}
+  let instructions='';
+  if(!modern){const init=await request('initialize',{protocolVersion:version,capabilities,clientInfo:{name:'fictional-morning-audit',version:'1.0'}});instructions=init.instructions;send({jsonrpc:'2.0',method:'notifications/initialized'});}
   return {
-    dir,child,dialogs,request,close,
+    dir,child,dialogs,request,close,instructions,
     call:(name,args={},continuation={})=>request('tools/call',{name,arguments:args,...continuation}),
     respond:fn=>{elicit=fn;},
     requests:async()=>{try{return (await fs.readFile(path.join(dir,'requests.jsonl'),'utf8')).trim().split('\n').filter(Boolean).map(line=>JSON.parse(line));}catch(e){if(e.code==='ENOENT')return [];throw e;}},
     control:value=>fs.writeFile(path.join(dir,'control.json'),JSON.stringify(value)),
     draft:async id=>{const accounts=await fs.readdir(path.join(dir,'data'));const file=path.join(dir,'data',accounts[0],`${id}.json`);return {file,record:JSON.parse(await fs.readFile(file,'utf8'))};},
   };
-}
-export function continuation(prompt,{action='accept',confirm=true,confirmation}={}){
-  const key=Object.keys(prompt.inputRequests)[0];
-  return {requestState:prompt.requestState,inputResponses:{[key]:{action,content:{confirm,...(confirmation?{confirmation}:{})}}}};
 }

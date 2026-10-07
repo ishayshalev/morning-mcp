@@ -4,14 +4,14 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {Morning} from '../lib/morning.mjs';
-import {mcp,json,errorText,prepareInput,continuation,clientId} from './helpers.mjs';
+import {mcp,json,errorText,prepareInput,clientId} from './helpers.mjs';
 
 test('Changing saved credentials invalidates previously prepared drafts',async t=>{
   const c=await mcp(t,{configured:false,version:'2026-07-28'}),file=path.join(c.dir,'config.json');
   await fs.writeFile(file,JSON.stringify({id:'test-account',secret:'test-first-secret',environment:'production'}),{mode:0o600});
-  const d=json(await c.call('prepare_morning_action',prepareInput('addClient'))),args={id:d.id,payloadHash:d.payloadHash},prompt=await c.call('execute_draft',args);
+  const d=json(await c.call('prepare_morning_action',prepareInput('addClient'))),args={id:d.id,payloadHash:d.payloadHash};
   await fs.writeFile(file,JSON.stringify({id:'test-account',secret:'test-rotated-secret',environment:'production'}));
-  assert.match(errorText(await c.call('execute_draft',args,continuation(prompt))),/Connection changed/);
+  assert.match(errorText(await c.call('execute_draft',args)),/Connection changed/);
   assert.ok((await c.requests()).every(r=>!r.write));
 });
 
@@ -46,7 +46,7 @@ test('Parallel reads share one authentication request; revoked tokens are discar
 
 test('Document issuance returns a warning if Morning reports a Tax Authority confirmation error',async t=>{
   const c=await mcp(t),d=json(await c.call('prepare_morning_action',prepareInput('addDocument')));
-  await c.control({taxAuthorityFailure:true});c.respond(()=>({action:'accept',content:{confirm:true}}));
+  await c.control({taxAuthorityFailure:true});
   const outcome=json(await c.call('execute_draft',{id:d.id,payloadHash:d.payloadHash}));
   assert.equal(outcome.status,'succeeded');assert.equal(outcome.result.taxAuthorityConfirmationLastError,406);assert.match(outcome.result.warning,/do not issue another copy/);
   assert.equal((await c.requests()).filter(r=>r.write).length,1);
@@ -54,7 +54,7 @@ test('Document issuance returns a warning if Morning reports a Tax Authority con
 
 test('Malformed write responses leave the request needs_check and cannot trigger a duplicate document',async t=>{
   const c=await mcp(t),d=json(await c.call('prepare_morning_action',prepareInput('addDocument')));
-  await c.control({invalidWrite:true});c.respond(()=>({action:'accept',content:{confirm:true}}));
+  await c.control({invalidWrite:true});
   assert.match(errorText(await c.call('execute_draft',{id:d.id,payloadHash:d.payloadHash})),/Do not retry/);
   assert.equal(json(await c.call('request_status',{id:d.id})).status,'needs_check');
   assert.equal((await c.requests()).filter(r=>r.write).length,1);

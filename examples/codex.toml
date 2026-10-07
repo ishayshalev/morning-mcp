@@ -4,6 +4,3 @@ command = "/ABSOLUTE/PATH/TO/node"
 args = ["/ABSOLUTE/PATH/TO/morning-mcp/bin/morning-mcp.mjs"]
 startup_timeout_sec = 30
 tool_timeout_sec = 180
-
-[mcp_servers.morning.tools.execute_draft]
-approval_mode = "prompt"
